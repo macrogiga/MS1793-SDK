@@ -1,0 +1,5 @@
+请安装keil, 用jlink或者ulink2调试和下载sdk里面的工程. 
+
+配置文件请参考链接: 
+https://pan.baidu.com/s/1qYHRrZI 
+密码: j3y4

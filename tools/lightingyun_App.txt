@@ -1,0 +1,8 @@
+ios:
+V2BJF   https://itunes.apple.com/us/app/zhao-ming-yunble/id1086846700?mt=8
+	https://itunes.apple.com/us/developer/zhuopeng-xie/id870452057
+
+
+android:
+	lightyun-release.apk_1.0-07-27.apk
+	
