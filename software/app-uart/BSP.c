@@ -178,37 +178,36 @@ void UartInit(UART_TypeDef* UARTx)
 {
     //GPIO端口设置
     GPIO_InitTypeDef GPIO_InitStructure;
-	NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_InitTypeDef NVIC_InitStructure;
     
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_UART1, ENABLE);	//使能UART1，GPIOA时钟
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_UART1, ENABLE);	//使能UART1，GPIOA时钟
     
     //UART1 NVIC 配置
     NVIC_InitStructure.NVIC_IRQChannel = UART1_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=3 ;//抢占优先级3
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;		//子优先级3
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
-	NVIC_Init(&NVIC_InitStructure);	//根据指定的参数初始化VIC寄存器
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=3 ;//抢占优先级3
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;		//子优先级3
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
+    NVIC_Init(&NVIC_InitStructure);	//根据指定的参数初始化VIC寄存器
     
     //UART 初始化设置
-	GPIO_PinAFConfig(GPIOA,GPIO_PinSource9,GPIO_AF_1);
-	GPIO_PinAFConfig(GPIOA,GPIO_PinSource10,GPIO_AF_1);
+    GPIO_PinAFConfig(GPIOA,GPIO_PinSource9,GPIO_AF_1);
+    GPIO_PinAFConfig(GPIOA,GPIO_PinSource10,GPIO_AF_1);
     
-	UART_InitStructure.UART_BaudRate = BaudRate;//串口波特率
-	UART_InitStructure.UART_WordLength = UART_WordLength_8b;//字长为8位数据格式
-	UART_InitStructure.UART_StopBits = UART_StopBits_1;//一个停止位
-	UART_InitStructure.UART_Parity = UART_Parity_No;//无奇偶校验位
-	UART_InitStructure.UART_HardwareFlowControl = UART_HardwareFlowControl_None;//无硬件数据流控制
-	UART_InitStructure.UART_Mode = UART_Mode_Rx | UART_Mode_Tx;	//收发模式
+    UART_InitStructure.UART_BaudRate = BaudRate;//串口波特率
+    UART_InitStructure.UART_WordLength = UART_WordLength_8b;//字长为8位数据格式
+    UART_InitStructure.UART_StopBits = UART_StopBits_1;//一个停止位
+    UART_InitStructure.UART_Parity = UART_Parity_No;//无奇偶校验位
+    UART_InitStructure.UART_HardwareFlowControl = UART_HardwareFlowControl_None;//无硬件数据流控制
+    UART_InitStructure.UART_Mode = UART_Mode_Rx | UART_Mode_Tx;	//收发模式
     
     UART_Init(UART1, &UART_InitStructure); //初始化串口1
-		//UART1->BRR = 9;
     UART_ITConfig(UART1, UART_IT_RXIEN, ENABLE);//开启串口接受中断
-	UART_ITConfig(UART1, UART_IT_TXIEN, DISABLE);
-	  UART_Cmd(UART1, ENABLE);                    //使能串口1 
+    UART_ITConfig(UART1, UART_IT_TXIEN, DISABLE);
+    UART_Cmd(UART1, ENABLE);                    //使能串口1 
     
-	//UART1_TX   GPIOA.9
+    //UART1_TX   GPIOA.9
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9; //PA.9
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;	//复用推挽输出
     GPIO_Init(GPIOA, &GPIO_InitStructure);//初始化GPIOA.9
     
@@ -216,24 +215,19 @@ void UartInit(UART_TypeDef* UARTx)
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;//PA10
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;//浮空输入
     GPIO_Init(GPIOA, &GPIO_InitStructure);//初始化GPIOA.10  
-		
-	//printf("uart ok");
-	
-	
-    GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_3);
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_3);
 
-	//RTS
+
+    //RTS
     GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_11;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; // 推挽输出
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
-	
-	//CTS
-	GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_2;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
-	GPIO_Init(GPIOD, &GPIO_InitStructure);
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; // 推挽输出
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    //CTS
+    GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_2;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
+    GPIO_Init(GPIOD, &GPIO_InitStructure);
 
     GPIO_ResetBits(GPIOA, GPIO_Pin_11);
 }
@@ -261,14 +255,6 @@ void LED_ONOFF(unsigned char onFlag)//module indicator,GPA8
     }
 }
 
-void Sys_Standby(void)
-{  
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);	//使能PWR外设时钟
-    //	RCC->APB2RSTR|=0X01FC;//复位所有IO口
-	PWR_WakeUpPinCmd(ENABLE);  //使能唤醒管脚功能
-	PWR_EnterSTANDBYMode();	  //进入待命（STANDBY）模式 
-	
-}
 void BSP_Init(void)
 {
 	NVIC_InitTypeDef NVIC_InitStructure;
@@ -351,15 +337,15 @@ char IsIrqEnabled(void) //porting api
 void McuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
 {
 #ifdef USE_UART
-	if ((SleepStop)&&
-		(TxTimeout < SysTick_Count)&&
-		(RxTimeout < SysTick_Count))
-	{
+    if ((SleepStop)&&
+        (TxTimeout < SysTick_Count)&&
+        (RxTimeout < SysTick_Count))
+    {
         if(SleepStop == 1){//sleep
-            SysClk48to8();
+            //SysClk48to8();
             SCB->SCR &= 0xfb;
             __WFE();
-            SysClk8to48();
+            //SysClk8to48();
         }else{ //stop
             SysClk48to8();
             SCB->SCR |= 0x4;
@@ -368,10 +354,10 @@ void McuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
             RCC->CR|=RCC_CR_HSION;
             RCC->CR |= RCC_CR_PLLON;
             RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;
-            GPIO_ResetBits(GPIOA, GPIO_Pin_11);
             SysTick_Config(48000);
+            GPIO_ResetBits(GPIOA, GPIO_Pin_11);
         }
-	}
+    }
 #endif  
 }
 
@@ -383,12 +369,12 @@ void SysClk8to48(void)
 }
 void SysClk48to8(void)
 {
-	RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);//selecting PLL clock as sys clock
+    RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);//selecting PLL clock as sys clock
     
-	while (RCC_GetSYSCLKSource() != 0x0)
-	{}
-    
-    RCC->CR &=~(RCC_CR_PLLON);		//clear PLL
+    while (RCC_GetSYSCLKSource() != 0x0)
+    {}
+
+    RCC->CR &=~(RCC_CR_PLLON);  //clear PLL
     SysTick_Config(8000);
 }
 
