@@ -1,7 +1,9 @@
 #include "BSP.h"
+#include "mg_api.h"
 
 
 extern char GetConnectedStatus(void);
+unsigned char SleepStatus = 2; //1-sleep, 2-stop, 0-running
 
 /********************************************************************************************************
 **º¯ÊýÐÅÏ¢ £ºSPIM_TXEn(SPI_TypeDef* SPIx)                     
@@ -262,45 +264,7 @@ char IsIrqEnabled(void) //porting api
     return (!(GPIO_ReadInputData(GPIOA) & 0x1000)); //GPA12
 }
 
-#if 0 //enable from lib version 2.2.0
-unsigned char SPI_WriteBuf(unsigned char reg, unsigned char const *pBuf, unsigned char len)
-{
-	unsigned char result;
-	unsigned char i;
-	
-	SPI_CS_Enable_();
-	
-	SPI_WriteRead(reg | 0x20,1);	
-	
-	for (i=0;i<len;i++)
-	{
-		result = SPI_WriteRead(*pBuf++,1);
-	}
-	
-	SPI_CS_Disable_();
-	
-	return result;
-}
 
-unsigned char SPI_ReadBuf(unsigned char reg, unsigned char *pBuf, unsigned char len)
-{
-	unsigned char result;
-	unsigned char i;
-	
-	SPI_CS_Enable_();
-	
-	result = SPI_WriteRead(reg,1);
-	
-	for (i=0;i<len;i++)
-	{
-		*(pBuf+i) = SPI_WriteRead(0xff,0);
-	}
-	
-	SPI_CS_Disable_();
-	
-	return result;
-}
-#endif
 
 
 #define TOUT_ARGUN 600 //1000/200*60*2 = 2 min
@@ -334,6 +298,40 @@ void McuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
     }
 }
 
+void IrqMcuGotoSleepAndWakeup(void)
+{
+    if(ble_run_interrupt_McuCanSleep())
+    {
+        //to do MCU sleep and wakeup steps
+        if (TOUT_ARGUN < StandbyTimeout)
+        {
+            RCC_LSICmd(DISABLE);  //in STANDBY iwdg will cause reset
+            
+            radio_standby();
+            Sys_Standby();
+        }else{ //enter SLEEP/STOP to save power
+#if 0 //SLEEP
+            SleepStatus = 1;
+            SysClk48to8();
+            SCB->SCR &= 0xFB;
+            __WFE();
+            
+            //SysClk8to48();
+#else //STOP
+            SleepStatus = 2;
+            SysClk48to8();
+            SCB->SCR |= 0x4;
+            __WFI();
+            
+            //RCC->CR|=RCC_CR_HSION;
+            //RCC->CR |= RCC_CR_PLLON;
+            //RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;
+            //SysTick_Config(48000);
+#endif
+        }
+    }
+}
+
 //////DO NOT REMOVE, used in ble lib///////
 void SysClk8to48(void)
 {
@@ -342,12 +340,12 @@ void SysClk8to48(void)
 }
 void SysClk48to8(void)
 {
-	RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);//selecting PLL clock as sys clock
+    RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);//selecting PLL clock as sys clock
     
-	while (RCC_GetSYSCLKSource() != 0x0)
-	{}
+    while (RCC_GetSYSCLKSource() != 0x0)
+    {}
     
-    RCC->CR &=~(RCC_CR_PLLON);		//clear PLL
+    RCC->CR &=~(RCC_CR_PLLON);  //clear PLL
     SysTick_Config(8000);
 }
 

@@ -11,7 +11,7 @@
  #include "HAL_conf.h"
  #include "mg_api.h"
  
-//unsigned short capture = 0;
+extern unsigned char SleepStatus;
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -86,14 +86,24 @@ void SysTick_Handler(void)
 
 void EXTI0_1_IRQHandler(void)
 {
-	EXTI_ClearITPendingBit(EXTI_Line0); 
+    EXTI_ClearITPendingBit(EXTI_Line0); 
 }
 
 void EXTI4_15_IRQHandler(void)
 {
-	/*EXTI_ClearITPendingBit(EXTI_Line10);*/
-	EXTI_ClearITPendingBit(EXTI_Line11);
+    /*EXTI_ClearITPendingBit(EXTI_Line10);*/
+    EXTI_ClearITPendingBit(EXTI_Line11);
+    EXTI_ClearITPendingBit(EXTI_Line12);
+
+    if(1 == SleepStatus){ //sleep
+        SysClk8to48();
+    }else if(2 == SleepStatus){ //stop
+        RCC->CR|=RCC_CR_HSION;
+        RCC->CR |= RCC_CR_PLLON;
+        RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;
+        SysTick_Config(48000);
+    }
+    SleepStatus = 0;
     
-	EXTI_ClearITPendingBit(EXTI_Line12);
     ble_run(0);    
 }
