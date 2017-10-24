@@ -257,6 +257,10 @@ static unsigned char HRMData[3]={
     0x00,0x00,0x01
 };
 
+#ifdef USE_I2C
+    extern void I2C_Send(u8 *pdat, u8 len);
+#endif
+
 //本回调函数可用于蓝牙模块端主动发送数据之用，协议栈会在系统允许的时候（异步）回调本函数，不得阻塞！！
 void gatt_user_send_notify_data_callback(void)
 {
@@ -292,6 +296,9 @@ void gatt_user_send_notify_data_callback(void)
         SimBatt = (Val*100)>>9; //0~100
         cur_notifyhandle = 0x18;
         sconn_notifydata(&SimBatt,1);
+#ifdef USE_I2C
+        I2C_Send(&SimBatt, 1);
+#endif
     }
 }
 

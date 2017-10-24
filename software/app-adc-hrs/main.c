@@ -5,6 +5,10 @@
 #include "mg_api.h"
 
 
+#ifdef USE_I2C
+	extern void IIC_Init(I2C_TypeDef* I2Cx);
+#endif
+
 unsigned char *ble_mac_addr;
 unsigned char* get_local_addr(void) //used for ble pairing case
 {
@@ -26,6 +30,10 @@ int main(void)
     
     BSP_Init();
 
+#ifdef USE_I2C
+	IIC_Init(I2C1);
+#endif
+    
     Write_Iwdg_ON(IWDG_Prescaler_32, 0x4E2); //1s
 
     radio_initBle(TXPWR_0DBM, &ble_mac_addr);

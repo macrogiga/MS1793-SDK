@@ -6,3 +6,5 @@ Andriod: wandoujia或者360手机助手上查找
 IOS: https://itunes.apple.com/cn/app/nrf-toolbox/id820906058?mt=8
 Android: wandoujia或者360手机助手上查找
 
+3, nRF UART 2.0
+Android: 360手机助手上查找
