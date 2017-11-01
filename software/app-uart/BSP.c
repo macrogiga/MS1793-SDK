@@ -7,7 +7,7 @@ u32 BaudRate = 9600;//9600;
 #define MAX_SIZE 100
 
 unsigned int TxTimeout=0;
-extern unsigned int SysTick_Count;
+extern volatile unsigned int SysTick_Count;
 extern unsigned int RxTimeout;
 
 unsigned char SleepStop = 0x00; //01-sleep, 02-stop

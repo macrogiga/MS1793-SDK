@@ -19,8 +19,8 @@ u8 txBuf[MAX_SIZE],rxBuf[MAX_SIZE],txLen=0;
 u16 RxCont=0;
 u8 PosW = 0;
 
-
-extern unsigned int TxTimeout,SysTick_Count;
+extern volatile unsigned int SysTick_Count;
+extern unsigned int TxTimeout;
 extern u32 BaudRate;
 extern unsigned char SleepStop;
 unsigned int RxTimeout;
