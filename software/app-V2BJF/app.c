@@ -31,13 +31,13 @@
 
 
 void mesh_led_resp(u16 att_hd, u8* attValue, u8 valueLen_w);
-extern u8 OTA_RspErrorCode;
+u8 OTA_RspErrorCode = 0;
 
 /// Characteristic Properties Bit
 #define ATT_CHAR_PROP_RD                            0x02
 #define ATT_CHAR_PROP_W_NORSP                       0x04
 #define ATT_CHAR_PROP_W                             0x08
-#define ATT_CHAR_PROP_NTF                			0x10
+#define ATT_CHAR_PROP_NTF                           0x10
 #define ATT_CHAR_PROP_IND                           0x20 
 #define GATT_PRIMARY_SERVICE_UUID                   0x2800
 
@@ -50,7 +50,7 @@ extern u8 OTA_RspErrorCode;
 #define UUID16_FORMAT  0xff
 
 
-#define SOFTWARE_INFO "SV2.1.2"
+#define SOFTWARE_INFO "SV2.1.3"
 #define MANU_INFO     "MacroGiga Bluetooth"
 #define DeviceInfo    "MS1793-BLED-V2"  /*max len is 24 bytes*/
 
@@ -208,7 +208,7 @@ void server_rd_rsp(u8 attOpcode, u16 attHandle, u8 pdu_type)
             break;
         
         case 0x0b: //FIRMWARE_INFO
-        {            
+        {
             //do NOT modify this code!!!
             att_server_rd( pdu_type, attOpcode, attHandle, GetFirmwareInfo(),strlen((const char*)GetFirmwareInfo()));
             break;
@@ -284,7 +284,7 @@ void UsrProcCallback(void) //porting api
 {
     Write_Iwdg_RL();
     
-    UpdateLEDValueFading(0);//1:fading; 0:now    
+    UpdateLEDValueFading(0);//1:fading; 0:now
 }
 
 #endif

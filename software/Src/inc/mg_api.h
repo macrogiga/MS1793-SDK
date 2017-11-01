@@ -71,8 +71,12 @@ void ble_set_adv_rsp_data(unsigned char* rsp, unsigned char len);
 //return: None
 void ble_set_name(unsigned char* name,unsigned char len);
 
+//Function: ble_set_adv_type
+//Parameters: type - advertisement type, 0-adv_ind, 2-adv_nonconn_ind. default 0
+//return: None
+void ble_set_adv_type(unsigned char type);
+
 //Function: ble_set_interval
-//this function IS available when using default scan response data
 //Parameters: interval - advertisement interval, unit 0.625ms
 //return: None
 void ble_set_interval(unsigned short interval);
@@ -132,7 +136,13 @@ void UpdateLEDValueFading(unsigned char flag_fade); //1-fading, 0-now
 
 
 ///////////////////////////OTA APIs/////////////////////////////////
-void OTA_Proc(unsigned char *data, unsigned short len);
+//return: 
+// OTA_OK             0
+// OTA_SN_ERROR       1
+// OTA_CHECKSUM_ERROR 2
+// OTA_FORMAT_ERROR   3
+// OTA_UNKNOWN_ERROR  255
+unsigned char OTA_Proc(unsigned char *data, unsigned short len);
 
 
 ///////////////////////////interrupt running mode APIs/////////////////////////////////
@@ -218,6 +228,9 @@ unsigned char* GetMgBleStateInfo(int* StateInfoSize/*Output*/);
 //void UpdateLEDValueAll(void);
 
 //void OtaSystemReboot(void);
+//void WriteFlashE2PROM(u8* data, u16 len, u32 pos, u8 flag); //4 bytes aligned
+//u32 GetOtaAddr(void);
+
 
 //void McuGotoSleepAndWakeup(void);
 
