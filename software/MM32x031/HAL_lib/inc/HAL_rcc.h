@@ -290,7 +290,7 @@ typedef struct
 
 #define RCC_APB2Periph_TIM1              ((uint32_t)0x00000800)
 #define RCC_APB2Periph_SPI1              ((uint32_t)0x00001000)
-
+#define RCC_APB1Periph_BKP               ((uint32_t)0x00000000)//Normally open
 #define RCC_APB2Periph_UART1            ((uint32_t)0x00004000)
 
 #define RCC_APB2Periph_TIM14             ((uint32_t)0x00010000)

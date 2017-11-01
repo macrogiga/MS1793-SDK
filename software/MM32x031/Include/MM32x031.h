@@ -850,7 +850,65 @@ typedef struct
   __IO uint32_t  RESERVED67; 			/*!           Address offset: 0x1BC */
   __IO uint32_t  rPOWER;				/*!           Address offset: 0x1C0 */
 } USB_TypeDef;
+typedef struct
+{
+  uint32_t  RESERVED0;//0x00
+  __IO uint16_t DR1_RESERVED;//0x04
+  uint16_t  RESERVED1;
+  __IO uint16_t DR2_RESERVED;
+  uint16_t  RESERVED2;
+  __IO uint16_t DR3_RESERVED;
+  uint16_t  RESERVED3;
+  __IO uint16_t DR4_RESERVED;//0x10
+  uint16_t  RESERVED4;
+  __IO uint16_t DR5_RESERVED;
+  uint16_t  RESERVED5;
+  __IO uint16_t DR6_RESERVED;
+  uint16_t  RESERVED6;
+  __IO uint16_t DR7_RESERVED;
+  uint16_t  RESERVED7;
+  __IO uint16_t DR8_RESERVED;//0x20
+  uint16_t  RESERVED8;
+  __IO uint16_t DR9_RESERVED;
+  uint16_t  RESERVED9;
+  __IO uint16_t DR10_RESERVED;
+  uint16_t  RESERVED10; 
+  __IO uint16_t RTCCR;//0x2C
+  uint16_t  RESERVED11;
+  __IO uint16_t CR;//0x30
+  uint16_t  RESERVED12;
+  __IO uint16_t CSR;//0x34
+  uint16_t  RESERVED13;
+  
+  uint32_t  RESERVED14;//0x38
+  uint32_t  RESERVED15;//0x3C
+  uint32_t  RESERVED16;//0x40
+  uint32_t  RESERVED17;//0x44
+  uint32_t  RESERVED18;//0x48
+  uint32_t  RESERVED19;//0x4C
+  
+  __IO uint16_t DR1;//0x50
+  uint16_t  RESERVED20;
+  __IO uint16_t DR2;//0x54
+  uint16_t  RESERVED22; 
+  __IO uint16_t DR3;//0x58
+  uint16_t  RESERVED23; 
+  __IO uint16_t DR4;//0x5C
+  uint16_t  RESERVED24; 
+  __IO uint16_t DR5;//0x60
+  uint16_t  RESERVED25; 
+  __IO uint16_t DR6;//0x64
+  uint16_t  RESERVED26; 
+  __IO uint16_t DR7;//0x68
+  uint16_t  RESERVED27; 
+  __IO uint16_t DR8;//0x6C
+  uint16_t  RESERVED28; 
+  __IO uint16_t DR9;//0x70
+  uint16_t  RESERVED29; 
+  __IO uint16_t DR10;//0x74
+  uint16_t  RESERVED30; 
 
+} BKP_TypeDef;
 #endif
 
 /**
@@ -884,7 +942,7 @@ typedef struct
 #define IWDG_BASE             (APB1PERIPH_BASE + 0x3000)
 #define I2C1_BASE             (APB1PERIPH_BASE + 0x5400)
 #define PWR_BASE              (APB1PERIPH_BASE + 0x7000)
-
+#define BKP_BASE              (APB1PERIPH_BASE + 0x2800)
 #define SYSCFG_BASE           (APB2PERIPH_BASE + 0x0000)
 #define EXTI_BASE             (APB2PERIPH_BASE + 0x0400)
 
@@ -973,6 +1031,7 @@ typedef struct
 #define OB                  ((OB_TypeDef *) OB_BASE) 
 #define DBGMCU              ((DBGMCU_TypeDef *) DBGMCU_BASE)
 #define SYSCFG              ((SYSCFG_TypeDef *) SYSCFG_BASE)
+#define BKP                 ((BKP_TypeDef *) BKP_BASE)
 
 /**
 * @}
@@ -1029,6 +1088,42 @@ typedef struct
 #define  PWR_CSR_PVDO                        ((uint16_t)0x0004)     /*!< PVD Output */
 #define  PWR_CSR_EWUP                        ((uint16_t)0x0100)     /*!< Enable WKUP pin */
 
+
+/******************************************************************************/
+/*                                                                            */
+/*                            Backup registers                                */
+/*                                                                            */
+/******************************************************************************/
+
+/*******************  Bit definition for BKP_DR1 register  ********************/
+#define  BKP_DR1_D                           ((uint16_t)0xFFFF)     /*!< Backup data */
+
+/*******************  Bit definition for BKP_DR2 register  ********************/
+#define  BKP_DR2_D                           ((uint16_t)0xFFFF)     /*!< Backup data */
+
+/*******************  Bit definition for BKP_DR3 register  ********************/
+#define  BKP_DR3_D                           ((uint16_t)0xFFFF)     /*!< Backup data */
+
+/*******************  Bit definition for BKP_DR4 register  ********************/
+#define  BKP_DR4_D                           ((uint16_t)0xFFFF)     /*!< Backup data */
+
+/*******************  Bit definition for BKP_DR5 register  ********************/
+#define  BKP_DR5_D                           ((uint16_t)0xFFFF)     /*!< Backup data */
+
+/*******************  Bit definition for BKP_DR6 register  ********************/
+#define  BKP_DR6_D                           ((uint16_t)0xFFFF)     /*!< Backup data */
+
+/*******************  Bit definition for BKP_DR7 register  ********************/
+#define  BKP_DR7_D                           ((uint16_t)0xFFFF)     /*!< Backup data */
+
+/*******************  Bit definition for BKP_DR8 register  ********************/
+#define  BKP_DR8_D                           ((uint16_t)0xFFFF)     /*!< Backup data */
+
+/*******************  Bit definition for BKP_DR9 register  ********************/
+#define  BKP_DR9_D                           ((uint16_t)0xFFFF)     /*!< Backup data */
+
+/*******************  Bit definition for BKP_DR10 register  *******************/
+#define  BKP_DR10_D                          ((uint16_t)0xFFFF)     /*!< Backup data */
 
 /******************************************************************************/
 /*                                                                            */

@@ -1001,6 +1001,26 @@ void RCC_APB1PeriphResetCmd(uint32_t RCC_APB1Periph, FunctionalState NewState)
 }
 
 
+/**
+* @brief  Forces or releases the Backup domain reset.
+* @param NewState: new state of the Backup domain reset.
+*   This parameter can be: ENABLE or DISABLE.
+* @retval : None
+*/
+void RCC_BackupResetCmd(FunctionalState NewState)
+{
+    /* Check the parameters */
+    assert_param(IS_FUNCTIONAL_STATE(NewState));
+//  *(__IO uint32_t *) BDCR_BDRST_BB = (uint32_t)NewState;
+    if(NewState==ENABLE)
+    {
+        RCC->BDCR |= (uint32_t)0x00010000;
+    }
+    else
+    {
+        RCC->BDCR &= (uint32_t)0xfffeffff;
+    }
+}
 
 /**
 * @brief  Enables or disables the Clock Security System.

@@ -577,55 +577,58 @@ FLASH_Status FLASH_EnableWriteProtection(uint32_t FLASH_Pages)
 FLASH_Status FLASH_ReadOutProtection(FunctionalState NewState)
 {
   FLASH_Status status = FLASH_COMPLETE;
-  /* Check the parameters */
-  assert_param(IS_FUNCTIONAL_STATE(NewState));
-  
-  
-  
-  status = FLASH_WaitForLastOperation(EraseTimeout);
-  if(status == FLASH_COMPLETE)
-  {
-    /* Authorizes the small information block programming */
-    FLASH->OPTKEYR = FLASH_KEY1;
-    FLASH->OPTKEYR = FLASH_KEY2;
-    FLASH->CR |= CR_OPTER_Set;
-    FLASH->CR |= CR_STRT_Set;
-    /* Wait for last operation to be completed */
+    /* Check the parameters */
+    assert_param(IS_FUNCTIONAL_STATE(NewState));
+    
+    
+    
     status = FLASH_WaitForLastOperation(EraseTimeout);
     if(status == FLASH_COMPLETE)
     {
-      /* if the erase operation is completed, disable the OPTER Bit */
-      FLASH->CR &= CR_OPTER_Reset;
-      /* Enable the Option Bytes Programming operation */
-      FLASH->CR |= CR_OPTPG_Set; 
-      if(NewState != DISABLE)
-      {
-        OB->RDP = 0x00;
-      }
-      else
-      {
-        OB->RDP = RDP_Key;  
-      }
-      /* Wait for last operation to be completed */
-      status = FLASH_WaitForLastOperation(EraseTimeout); 
-      
-      if(status != FLASH_BUSY)
-      {
-        /* if the program operation is completed, disable the OPTPG Bit */
-        FLASH->CR &= CR_OPTPG_Reset;
-      }
+		/* Authorize the FPEC Access */
+    FLASH->KEYR = FLASH_KEY1;
+    FLASH->KEYR = FLASH_KEY2;
+        /* Authorizes the small information block programming */
+        FLASH->OPTKEYR = FLASH_KEY1;
+        FLASH->OPTKEYR = FLASH_KEY2;
+	FLASH->AR = 0x1ffff800;
+        FLASH->CR |= CR_OPTER_Set;
+        FLASH->CR |= CR_STRT_Set;
+        /* Wait for last operation to be completed */
+        status = FLASH_WaitForLastOperation(EraseTimeout);
+        if(status == FLASH_COMPLETE)
+        {
+            /* if the erase operation is completed, disable the OPTER Bit */
+            FLASH->CR &= CR_OPTER_Reset;
+            /* Enable the Option Bytes Programming operation */
+            FLASH->CR |= CR_OPTPG_Set; 
+            /*if(NewState != DISABLE)
+            {
+                OB->RDP = 0x00;
+            }
+            else
+            {
+                OB->RDP = RDP_Key;  
+            }*/
+			OB->RDP = 0xff00;
+            /* Wait for last operation to be completed */
+            status = FLASH_WaitForLastOperation(EraseTimeout); 
+            
+            if(status != FLASH_BUSY)
+            {
+                /* if the program operation is completed, disable the OPTPG Bit */
+                FLASH->CR &= CR_OPTPG_Reset;
+            }
+        }
+        else 
+        {
+            if(status != FLASH_BUSY)
+            {
+                /* Disable the OPTER Bit */
+                FLASH->CR &= CR_OPTER_Reset;
+            }
+        }
     }
-    else 
-    {
-      if(status != FLASH_BUSY)
-      {
-        /* Disable the OPTER Bit */
-        FLASH->CR &= CR_OPTER_Reset;
-      }
-    }
-  }
-  
-  
   
   /* Return the protection operation Status */
   return status;      
