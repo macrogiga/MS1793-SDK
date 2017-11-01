@@ -1,6 +1,38 @@
 #include "BSP.h"
 #include "adc.h"
+#include "HAL_bkp.h"
 
+
+/********************************************************************************************************
+**函数信息 ：BKP_DATA(void)         
+**功能描述 : BKP数据读写测试，判断写和读的数据是否一致
+**输入参数 ：FirstBackupData
+**输出参数 ：i
+********************************************************************************************************/
+u8 BKP_DATA(void)
+{
+    u16 i;
+
+    /* Enable PWR and BKP clock */
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
+
+    /* Enable write access to Backup domain */
+    PWR_BackupAccessCmd(ENABLE);
+
+    /* Clear Tamper pin Event(TE) pending flag */
+    BKP_ClearFlag();
+
+    i = BKP_ReadBackupRegister(BKP_DR1);
+    if (i != 0x1234)
+    {
+        BKP_WriteBackupRegister(BKP_DR1, 0x1234);
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
+}
 
 
 /********************************************************************************************************
@@ -368,16 +400,12 @@ char IsIrqEnabled(void) //porting api
 }
 
 
-#define TOUT_ARGUN 600 //1000/200*60*2 = 2 min
-extern unsigned int StandbyTimeout; 
+extern char GetConnectedStatus(void);
 void McuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
 {
-    if (TOUT_ARGUN < StandbyTimeout)
+    if (0 == GetConnectedStatus())
     {
-        RCC_LSICmd(DISABLE);  //in STANDBY iwdg will cause reset
-        
         radio_standby();
-        
         Sys_Standby();
     }
     else

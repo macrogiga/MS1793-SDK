@@ -63,7 +63,7 @@ void PendSV_Handler(void)
 {
 }
 
-/*static */unsigned int SysTick_Count = 0;
+volatile unsigned int SysTick_Count = 0;
 
 unsigned int GetSysTickCount(void) //porting api
 {

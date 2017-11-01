@@ -303,17 +303,9 @@ void gatt_user_send_notify_data_callback(void)
 }
 
 static unsigned char gConnectedFlag=0;
-unsigned int StandbyTimeout = 0;
 void UsrProcCallback(void) //porting api
 {
     Write_Iwdg_RL();
-    StandbyTimeout ++;
-    
-    if (gConnectedFlag)
-    {
-        StandbyTimeout = 0;
-    }
-   
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

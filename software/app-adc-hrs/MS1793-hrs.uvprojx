@@ -513,6 +513,11 @@
               <FileType>1</FileType>
               <FilePath>..\MM32x031\HAL_lib\src\HAL_wwdg.c</FilePath>
             </File>
+            <File>
+              <FileName>HAL_bkp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MM32x031\HAL_lib\src\HAL_bkp.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1064,6 +1069,11 @@
               <FileType>1</FileType>
               <FilePath>..\MM32x031\HAL_lib\src\HAL_wwdg.c</FilePath>
             </File>
+            <File>
+              <FileName>HAL_bkp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MM32x031\HAL_lib\src\HAL_bkp.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1452,7 +1462,7 @@
             <Optim>0</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
-            <OneElfS>0</OneElfS>
+            <OneElfS>1</OneElfS>
             <Strict>0</Strict>
             <EnumInt>0</EnumInt>
             <PlainCh>0</PlainCh>
@@ -1614,6 +1624,11 @@
               <FileName>HAL_wwdg.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\MM32x031\HAL_lib\src\HAL_wwdg.c</FilePath>
+            </File>
+            <File>
+              <FileName>HAL_bkp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MM32x031\HAL_lib\src\HAL_bkp.c</FilePath>
             </File>
           </Files>
         </Group>
