@@ -106,11 +106,14 @@ void ser_write_rsp_pkt(unsigned char pdu_type);
 
 unsigned char sconn_notifydata(unsigned char* data, unsigned char len);//returns data size has been sent, ******* user's safe API *********
 
-//API, returning of zero means error found
-//follows parameters defined in LL_CONNECTION_PARAM_REQ
-unsigned char sconn_UpdateConnParaReq(unsigned short IntervalMin, unsigned short IntervalMax, unsigned char  PreferredPeriodicity); /*unit of 1.25 ms*/
-//simple api
-unsigned char sconn_UpdateConnParaReqS(unsigned short PreferConInterval/*unit of 1.25 ms*/); //API, return non-zero means error found
+//Interval Min (2 octets)Defines minimum value for the connection event interval in the following manner:
+//connIntervalMin = Interval Min * 1.25 ms. Interval Min range: 6 to 3200
+//Interval Max (2 octets)Defines maximum value for the connection event interval in the following manner:
+//connIntervalMax = Interval Max * 1.25 ms. Interval Max range: 6 to 3200
+//Interval Max shall be equal to or greater than the Interval Min.
+//TimeoutMultiplier (2 octets) Defines connection timeout parameter in the following manner:
+//connSupervisionTimeout = Timeout Multiplier * 10 ms. The Timeout Multiplier range: 10 to 3200.
+void SIG_ConnParaUpdateReq(unsigned short IntervalMin, unsigned short IntervalMax, unsigned short TimeoutMultiplier);
 unsigned short sconn_GetConnInterval(void);//get current used interval in the unit of 1.25ms
 
 //Get current (or the latest) connected master device's MAC
