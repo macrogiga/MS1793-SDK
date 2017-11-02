@@ -471,12 +471,27 @@ void CheckComPortInData(void) //at cmd NOT supported
         }
     }
 }
-
+static u16 counter = 0;
 void UsrProcCallback(void) //porting api
 {
+    u16 conn_interv = 0;
+    
     IWDG_ReloadCounter();
     
-#ifdef USE_AT_CMD    
+    if(GetConnectedStatus()){
+        counter ++;
+        if(counter == 200){
+            conn_interv = sconn_GetConnInterval();
+            if(conn_interv > 24){//24*1.25=30ms
+                SIG_ConnParaUpdateReq(0x0006, 0x0010, 1000);
+            }
+            counter = 0;
+        }
+    }else{
+        counter = 0;
+    }
+    
+#ifdef USE_AT_CMD
     CheckAtCmdInfo();
 #else //AT CMD not supported
     CheckComPortInData();
@@ -509,5 +524,5 @@ void UsrProcCallback(void) //porting api
             moduleOutData((u8*)"IND:OK\n",7);
         }
     }
-#endif   
+#endif
 }
