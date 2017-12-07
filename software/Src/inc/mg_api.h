@@ -111,9 +111,11 @@ unsigned char sconn_notifydata(unsigned char* data, unsigned char len);//returns
 //Interval Max (2 octets)Defines maximum value for the connection event interval in the following manner:
 //connIntervalMax = Interval Max * 1.25 ms. Interval Max range: 6 to 3200
 //Interval Max shall be equal to or greater than the Interval Min.
+//slaveLatency shall have a valuein the range of 0 to ((connSupervisionTimeout / (connIntervalMax*2)) -1).
+//slaveLatency shall be less than 500.
 //TimeoutMultiplier (2 octets) Defines connection timeout parameter in the following manner:
 //connSupervisionTimeout = Timeout Multiplier * 10 ms. The Timeout Multiplier range: 10 to 3200.
-void SIG_ConnParaUpdateReq(unsigned short IntervalMin, unsigned short IntervalMax, unsigned short TimeoutMultiplier);
+void SIG_ConnParaUpdateReq(unsigned short IntervalMin, unsigned short IntervalMax, unsigned short slaveLatency, unsigned short TimeoutMultiplier);
 unsigned short sconn_GetConnInterval(void);//get current used interval in the unit of 1.25ms
 
 //Get current (or the latest) connected master device's MAC

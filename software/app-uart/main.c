@@ -14,8 +14,7 @@ unsigned char* get_local_addr(void) //used for ble pairing case
     return ble_mac_addr;
 }
 
-//unsigned char pld_adv[] = {2, 1, 6, 3, 0xA, 'm', 'g'};
-//unsigned char len_adv = 7; //max 31
+//unsigned char pld_adv[] = {2,1,6, 3,0x08,'m','g'};
 
 
 int main(void)

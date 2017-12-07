@@ -61,7 +61,7 @@ extern unsigned char SleepStop;
 
 #define SOFTWARE_INFO "SV2.1.2"
 #define MANU_INFO     "MacroGiga Bluetooth"
-char DeviceInfo[10] =  "MS1793-BLE";  /*max len is 24 bytes*/
+char DeviceInfo[11] =  "MS1793-UART";  /*max len is 24 bytes*/
 
 u16 cur_notifyhandle = 0x12;  //Note: make sure each notify handle by invoking function: set_notifyhandle(hd);
 

@@ -483,7 +483,7 @@ void UsrProcCallback(void) //porting api
         if(counter == 200){
             conn_interv = sconn_GetConnInterval();
             if(conn_interv > 24){//24*1.25=30ms
-                SIG_ConnParaUpdateReq(0x0006, 0x0010, 1000);
+                SIG_ConnParaUpdateReq(0x0006, 0x0010, 0x0000, 1000);
             }
             counter = 0;
         }
