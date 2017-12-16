@@ -50,7 +50,6 @@
 
 #define SOFTWARE_INFO "V1.0"
 #define MANU_INFO     "MacroGiga"
-#define FIRM_INFO     "FW  .2.1.3"
 char DeviceInfo[10] =  "MG-BLE-OTA";  /*max len is 24 bytes*/
 
 
@@ -58,7 +57,7 @@ u16 cur_notifyhandle = 0x14;  //Note: make sure each notify handle by invoking f
 
 u8* getDeviceInfoData(u8* len)
 {    
-    *len = 0/*sizeof(DeviceInfo)*/;
+    *len = sizeof(DeviceInfo);
     return (u8*)DeviceInfo;
 }
 
@@ -139,11 +138,16 @@ void att_server_rdByGrType( u8 pdu_type, u8 attOpcode, u16 st_hd, u16 end_hd, u1
     if((att_type == GATT_PRIMARY_SERVICE_UUID) && (st_hd == 1))//hard code for device info service
     {
         //att_server_rdByGrTypeRspDeviceInfo(pdu_type);//using the default device info service
-        //apply user defined (device info)service example
-        //{
-            u8 t[] = {0xa,0x18};
-            att_server_rdByGrTypeRspPrimaryService(pdu_type,0x7,0x11,(u8*)(t),2);
-        //}
+        //GAP Device Name
+        u8 t[] = {0x00,0x18};
+        att_server_rdByGrTypeRspPrimaryService(pdu_type,0x1,0x6,(u8*)(t),2);
+        return;
+    }
+    
+    else if((att_type == GATT_PRIMARY_SERVICE_UUID) && (st_hd <= 0x7))//hard code for device info service
+    {
+        u8 t[] = {0xa,0x18};
+        att_server_rdByGrTypeRspPrimaryService(pdu_type,0x7,0x11,(u8*)(t),2);
         return;
     }
 	 else if((att_type == GATT_PRIMARY_SERVICE_UUID) && (st_hd <= 0x12)) //OTA service
@@ -200,10 +204,16 @@ void ser_execute_write(void)//user's call back api
 //// read response
 void server_rd_rsp(u8 attOpcode, u16 attHandle, u8 pdu_type)
 {
-//	u8 tab[4];
 //	u8 tt[16] = {0x47,0x3f,0xa9,0xc1,0x47,0x80,0x14,0x90,0x3a,0xbc,0x57,0x7b,0x7d,0xc0,0x4d,0x8f};
+    u8  d_len;
+    u8* ble_name = getDeviceInfoData(&d_len);
+    
     switch(attHandle) //hard code
     {
+        case 0x04: //GAP name
+            att_server_rd( pdu_type, attOpcode, attHandle, ble_name, d_len);
+            break;
+        
         case 0x09: //MANU_INFO
             att_server_rd( pdu_type, attOpcode, attHandle, (u8*)(MANU_INFO), sizeof(MANU_INFO)-1);
             //att_server_rd( pdu_type, attOpcode, attHandle, get_ble_version(), strlen((const char*)get_ble_version())); //ble lib build version
@@ -211,7 +221,7 @@ void server_rd_rsp(u8 attOpcode, u16 attHandle, u8 pdu_type)
         
         case 0x0b: //FIRMWARE_INFO
             //do NOT modify this code!!!
-            att_server_rd( pdu_type, attOpcode, attHandle, (u8*)(FIRM_INFO),sizeof(FIRM_INFO)-1);
+            att_server_rd( pdu_type, attOpcode, attHandle, GetFirmwareInfo(), strlen((const char*)GetFirmwareInfo()));
             break;
         
         case 0x0f://SOFTWARE_INFO
@@ -295,7 +305,7 @@ void ConnectStausUpdate(unsigned char IsConnectedFlag) //porting api
     }
 }
 
-#ifdef MG_OTA_SUPPORT
+#ifdef BLE_PAIR_SUPPORT
 unsigned char aes_encrypt_HW(unsigned char *_data, unsigned char *_key)
 {
     return 0; //not supported
