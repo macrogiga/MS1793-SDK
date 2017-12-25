@@ -193,9 +193,8 @@ void test_carrier(unsigned char freq, unsigned char txpwr);
 
 void SetFixAdvChannel(unsigned char isFixCh37Flag);
 
-void set_mg_ble_dbg_flag(unsigned char EnableFlag);
-
-unsigned char* GetMgBleStateInfo(int* StateInfoSize/*Output*/);
+//void set_mg_ble_dbg_flag(unsigned char EnableFlag);
+//unsigned char* GetMgBleStateInfo(int* StateInfoSize/*Output*/);
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -232,12 +231,20 @@ unsigned char* GetMgBleStateInfo(int* StateInfoSize/*Output*/);
 
 //void UpdateLEDValueAll(void);
 
+//void McuGotoSleepAndWakeup(void);
+
+
+////////////////////////For OTA application use//////////////////////////
 //void OtaSystemReboot(void);
 //void WriteFlashE2PROM(u8* data, u16 len, u32 pos, u8 flag); //4 bytes aligned
 //u32 GetOtaAddr(void);
 
 
-//void McuGotoSleepAndWakeup(void);
+////////////////////////For PA application use///////////////////////////
+//void PA_SetTxEnable(void);  //IO control to enable PA TX
+//void PA_SetRxEnable(void);  //IO control to enable PA RX
+//void PA_DisableTxRx(void);  //IO control to disable PA TX/RX
+//void PA_Delay10us(void);    //10 us delay implementation
 
 
 #endif
