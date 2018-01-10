@@ -290,6 +290,10 @@ void server_rd_rsp(u8 attOpcode, u16 attHandle, u8 pdu_type)
     }
 }
 
+void server_blob_rd_rsp(u8 attOpcode, u16 attHandle, u8 dataHdrP,u16 offset)
+{
+}
+
 //return 1 means found
 int GetPrimaryServiceHandle(unsigned short hd_start, unsigned short hd_end,
                             unsigned short uuid16,   

@@ -98,6 +98,7 @@ unsigned char* get_ble_version(void); //such as "MG_BLE_LIB_V1.0"
 unsigned char GetRssiData(void); //only valid after receive a packet
 
 void att_notFd(unsigned char pdu_type, unsigned char attOpcode, unsigned short attHd );
+void att_ErrorFd_eCode(unsigned char pdu_type, unsigned char attOpcode, unsigned short attHd, unsigned char errorCode);
 void att_server_rdByGrTypeRspDeviceInfo(unsigned char pdu_type);
 void att_server_rdByGrTypeRspPrimaryService(unsigned char pdu_type, unsigned short start_hd, unsigned short end_hd, unsigned char*uuid, unsigned char uuidlen);
 void att_server_rd( unsigned char pdu_type, unsigned char attOpcode, unsigned short att_hd, unsigned char* attValue, unsigned char datalen );
@@ -218,6 +219,7 @@ void SetFixAdvChannel(unsigned char isFixCh37Flag);
 //void ser_write_rsp(unsigned char pdu_type/*reserved*/, unsigned char attOpcode/*reserved*/, 
 //                   unsigned short att_hd, unsigned char* attValue/*app data pointer*/, unsigned char valueLen_w/*app data size*/);
 //void server_rd_rsp(unsigned char attOpcode, unsigned short attHandle, unsigned char pdu_type);
+//void server_blob_rd_rsp(u8 attOpcode, u16 attHandle, u8 dataHdrP,u16 offset);
 //int GetPrimaryServiceHandle(unsigned short hd_start, unsigned short hd_end,
 //                            unsigned short uuid16,   
 //                            unsigned short* hd_start_r,unsigned short* hd_end_r);
@@ -226,7 +228,6 @@ void SetFixAdvChannel(unsigned char isFixCh37Flag);
 //unsigned char* getDeviceInfoData(unsigned char* len);
 //void UsrProcCallback(void);
 
-//void server_blob_rd_rsp(u8 attOpcode, u16 attHandle, u8 dataHdrP,u16 offset);
 //unsigned char aes_encrypt_HW(unsigned char *painText128bitBE,unsigned char *key128bitBE); //porting api, returns zero means not supported
 
 //void UpdateLEDValueAll(void);

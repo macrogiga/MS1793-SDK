@@ -12,7 +12,6 @@ unsigned char* get_local_addr(void) //used for ble pairing case
 }
 
 unsigned char pld_adv[] = {2,1,6, 3,3,0x90,0xfe, 9,0xFF,0x11,0x02,0x9c,0x05,0x93,0xF5,0x40,0xE1};
-unsigned char len_adv = sizeof(pld_adv); //max 31
 
 int main(void)
 {
@@ -22,11 +21,11 @@ int main(void)
     while(temp--);//delay if necessary
     Write_Iwdg_ON(IWDG_Prescaler_32, 0x4E2); //1s
 
-    ble_set_adv_data(pld_adv, len_adv); 
+    ble_set_adv_data(pld_adv, sizeof(pld_adv)); 
     
     radio_initBle(TXPWR_0DBM, &ble_mac_addr);
     radio_setXtal(7,0);
     
-    ble_run(160); //320*0.625=200 ms
+    ble_run(160); //160*0.625=100 ms
     
 }

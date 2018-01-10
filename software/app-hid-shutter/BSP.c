@@ -230,10 +230,10 @@ void BSP_Init(void)
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
+    NVIC_SetPriority (EXTI4_15_IRQn, (1<<__NVIC_PRIO_BITS) - 1); 
 	
 	PWR->CR = PWR->CR & 0xfffd; //PDDS = 0;enter stop mode
 	SCB->SCR |= 0x4;
-
 }
 
 
@@ -267,11 +267,11 @@ char IsIrqEnabled(void) //porting api
 
 
 
-#define TOUT_ARGUN 600 //1000/200*60*2 = 2 min
+#define TOUT_STDBY 600 //1000/200*60*2 = 2 min
 extern unsigned int StandbyTimeout;
 void McuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
 {
-    if (TOUT_ARGUN < StandbyTimeout)
+    if (TOUT_STDBY < StandbyTimeout)
     {
         RCC_LSICmd(DISABLE);  //in STANDBY iwdg will cause reset
         
@@ -303,7 +303,7 @@ void IrqMcuGotoSleepAndWakeup(void)
     if(ble_run_interrupt_McuCanSleep())
     {
         //to do MCU sleep and wakeup steps
-        if (TOUT_ARGUN < StandbyTimeout)
+        if (TOUT_STDBY < StandbyTimeout)
         {
             RCC_LSICmd(DISABLE);  //in STANDBY iwdg will cause reset
             

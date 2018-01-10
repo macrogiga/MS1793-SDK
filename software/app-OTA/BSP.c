@@ -241,6 +241,7 @@ void BSP_Init(void)
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
+    NVIC_SetPriority (EXTI4_15_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
 	
     PWR->CR = PWR->CR & 0xfffd; //PDDS = 0;enter stop mode
     if (1 == SleepStop){

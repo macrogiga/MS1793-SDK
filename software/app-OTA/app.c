@@ -134,7 +134,7 @@ void moduleOutData(u8*data, u8 len); //api
 void att_server_rdByGrType( u8 pdu_type, u8 attOpcode, u16 st_hd, u16 end_hd, u16 att_type )
 {
  //!!!!!!!!  hard code for gap and gatt, make sure here is 100% matched with database:[AttCharList] !!!!!!!!!
-                     
+
     if((att_type == GATT_PRIMARY_SERVICE_UUID) && (st_hd == 1))//hard code for device info service
     {
         //att_server_rdByGrTypeRspDeviceInfo(pdu_type);//using the default device info service
@@ -241,7 +241,11 @@ void server_rd_rsp(u8 attOpcode, u16 attHandle, u8 pdu_type)
         default:
             att_notFd( pdu_type, attOpcode, attHandle );/*the default response, also for the purpose of error robust */
             break;
-    }               
+    }
+}
+
+void server_blob_rd_rsp(u8 attOpcode, u16 attHandle, u8 dataHdrP,u16 offset)
+{
 }
 
 //return 1 means found
@@ -309,9 +313,5 @@ void ConnectStausUpdate(unsigned char IsConnectedFlag) //porting api
 unsigned char aes_encrypt_HW(unsigned char *_data, unsigned char *_key)
 {
     return 0; //not supported
-}
-
-void server_blob_rd_rsp(u8 attOpcode, u16 attHandle, u8 dataHdrP,u16 offset)
-{
 }
 #endif
