@@ -28,6 +28,11 @@
 //TX power
 #define TXPWR_0DBM 0x43
 #define TXPWR_3DBM 0x48
+#define	TXPWR__3DBM	 64
+#define	TXPWR__6DBM	 61
+#define	TXPWR__8DBM	 58
+#define	TXPWR__15DBM 48
+
 
 
 ///////////////////////////lib provided APIs//////////////////////////////////////
@@ -106,7 +111,7 @@ void att_server_rd( unsigned char pdu_type, unsigned char attOpcode, unsigned sh
 void ser_write_rsp_pkt(unsigned char pdu_type);
 
 unsigned char sconn_notifydata(unsigned char* data, unsigned char len);//returns data size has been sent, ******* user's safe API *********
-
+unsigned char sconn_indicationdata(unsigned char* data, unsigned char len);
 //Interval Min (2 octets)Defines minimum value for the connection event interval in the following manner:
 //connIntervalMin = Interval Min * 1.25 ms. Interval Min range: 6 to 3200
 //Interval Max (2 octets)Defines maximum value for the connection event interval in the following manner:
