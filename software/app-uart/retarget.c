@@ -15,9 +15,9 @@ extern void ChangeBaudRate(void);
 #define DMA1_Channel6_BASE    (AHBPERIPH_BASE + 0x006C)
 
 #define MAX_SIZE 200
-u8 txBuf[MAX_SIZE],rxBuf[MAX_SIZE],txLen=0;
-u16 RxCont=0;
-u8 PosW = 0;
+u8 txBuf[MAX_SIZE],rxBuf[MAX_SIZE];
+static u16 RxCont=0;
+static u8 PosW = 0, txLen = 0;
 
 extern volatile unsigned int SysTick_Count;
 extern unsigned int TxTimeout;
@@ -27,20 +27,18 @@ unsigned int RxTimeout;
 
 int fputc(int ch, FILE *f)
 {
-  UART_SendData(UART1, (uint16_t) ch);
+    UART_SendData(UART1, (uint16_t) ch);
 
-  while(1)
-	{
-		if(UART_GetITStatus(UART1, UART_IT_TXIEN))
-	
-		{
-			 UART_ClearITPendingBit(UART1, UART_IT_TXIEN);
-			 break;
-		}
-		
-	}
+    while(1)
+    {
+        if(UART_GetITStatus(UART1, UART_IT_TXIEN))
+        {
+             UART_ClearITPendingBit(UART1, UART_IT_TXIEN);
+             break;
+        }
+    }
 
-  return ch;
+    return ch;
 }
 
 int fgetc(FILE *f)
@@ -52,7 +50,6 @@ int fgetc(FILE *f)
 			UART_ClearITPendingBit(UART1, UART_IT_RXIEN);  //	
 			break;
 		}
-			
 	}
     
     return (int)UART_ReceiveData(UART1);
@@ -60,40 +57,38 @@ int fgetc(FILE *f)
 
 void UART1_IRQHandler(void)                	//串口1中断服务程序
 {
-	if(UART_GetITStatus(UART1, UART_IT_RXIEN)  != RESET)  //接收中断
-	{
-		UART_ClearITPendingBit(UART1,UART_IT_RXIEN);
-		rxBuf[RxCont]=UART_ReceiveData(UART1);
-		RxTimeout = SysTick_Count + 1000;
-		RxCont++;
-		if(RxCont >= MAX_SIZE)
-		{
-			RxCont = 0;
-		}
-	}
-	if(UART_GetITStatus(UART1, UART_IT_TXIEN)  != RESET)
-	{
-		UART_ClearITPendingBit(UART1,UART_IT_TXIEN);
-		
-		//
-		TxTimeout = SysTick_Count + (20000/BaudRate);
-		
-		if (PosW < txLen)
-		{
-			UART_SendData(UART1,txBuf[PosW++]);
-			
-			
-			if (PosW == txLen)
-			{
-				txLen = 0;
-				PosW = 0;
-			}
-		}
-		else
-		{
-			UART_ITConfig(UART1, UART_IT_TXIEN, DISABLE);
-		}
-	}
+    if(UART_GetITStatus(UART1, UART_IT_RXIEN)  != RESET)  //接收中断
+    {
+        UART_ClearITPendingBit(UART1,UART_IT_RXIEN);
+        rxBuf[RxCont]=UART_ReceiveData(UART1);
+        RxTimeout = SysTick_Count + 1000;
+        RxCont++;
+        if(RxCont >= MAX_SIZE)
+        {
+            RxCont = 0;
+        }
+    }
+    if(UART_GetITStatus(UART1, UART_IT_TXIEN) != RESET)
+    {
+        UART_ClearITPendingBit(UART1,UART_IT_TXIEN);
+        
+        TxTimeout = SysTick_Count + (20000/BaudRate);
+
+        if (PosW < txLen)
+        {
+            UART_SendData(UART1,txBuf[PosW++]);
+        }
+        else
+        {
+            UART_ITConfig(UART1, UART_IT_TXIEN, DISABLE);
+        }
+
+        if (PosW >= txLen){
+            
+            txLen = 0;
+            PosW = 0;
+        }
+    }
 }
 
 ///////////////FIFO proc for AT cmd///////////////
@@ -498,7 +493,7 @@ void UsrProcCallback(void) //porting api
 #endif
     if ((2 != SleepStop)||(!(GPIO_ReadInputData(GPIOD) & 0x0004)))//CTL low
     {
-        if ((txLen)&&(0 == PosW))
+        if ((txLen) && (0 == PosW))
         {
             UART_ITConfig(UART1, UART_IT_TXIEN, ENABLE);
             UART_SendData(UART1, txBuf[PosW++]);

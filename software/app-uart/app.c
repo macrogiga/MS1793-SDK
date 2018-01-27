@@ -33,20 +33,18 @@
 extern void ChangeBaudRate(void);
 
 extern u32 BaudRate;
-extern u8 txBuf[],rxBuf[],txLen,PosW;
-extern u16 RxCont;
 u16 NotifyCont=0;
 u8 CanNotifyFlag = 0;
 extern unsigned char SleepStop;
 #define MAX_SIZE 100
-#define NOTIFYSIZE	20
+#define NOTIFYSIZE 20
 
 
 /// Characteristic Properties Bit
 #define ATT_CHAR_PROP_RD                            0x02
 #define ATT_CHAR_PROP_W_NORSP                       0x04
 #define ATT_CHAR_PROP_W                             0x08
-#define ATT_CHAR_PROP_NTF                			0x10
+#define ATT_CHAR_PROP_NTF                           0x10
 #define ATT_CHAR_PROP_IND                           0x20 
 #define GATT_PRIMARY_SERVICE_UUID                   0x2800
 
