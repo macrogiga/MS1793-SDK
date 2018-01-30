@@ -154,28 +154,34 @@ void att_server_rdByGrType( u8 pdu_type, u8 attOpcode, u16 st_hd, u16 end_hd, u1
 
 ///STEP2:data coming
 ///write response, data coming....
+u8 flag_newcmd = 1;
 void ser_write_rsp(u8 pdu_type/*reserved*/, u8 attOpcode/*reserved*/, 
                    u16 att_hd, u8* attValue/*app data pointer*/, u8 valueLen_w/*app data size*/)
 {
-    //notify the lamp's status for each write req   
-    mesh_led_resp(att_hd,attValue,valueLen_w);   
+    //notify the lamp's status for each write req
+    mesh_led_resp(att_hd,attValue,valueLen_w);
  
     switch(att_hd)
     {
+        case 0x12://status
+        case 0x13://cfg
+            ser_write_rsp_pkt(pdu_type);  /*if the related character has the property of WRITE(with response) or TYPE_CFG, one MUST invoke this func*/
+            break;
+
+        case 0x15://cmd
+            flag_newcmd = 1;
+            ser_write_rsp_pkt(pdu_type);  /*if the related character has the property of WRITE(with response) or TYPE_CFG, one MUST invoke this func*/
+            break;
+
         case 0x18://OTA
             OTA_Proc(attValue, valueLen_w); //rsp followed
-        
-        case 0x12://status
-        case 0x15://cmd
-        
-        case 0x13://cfg  
-            ser_write_rsp_pkt(pdu_type);  /*if the related character has the property of WRITE(with response) or TYPE_CFG, one MUST invoke this func*/      
+            ser_write_rsp_pkt(pdu_type);  /*if the related character has the property of WRITE(with response) or TYPE_CFG, one MUST invoke this func*/
             break;
-        
+
         default:
-            att_notFd( pdu_type, attOpcode, att_hd );	/*the default response, also for the purpose of error robust */
+            att_notFd( pdu_type, attOpcode, att_hd );  /*the default response, also for the purpose of error robust */
             break;
-    }    		
+    }
 }
 
 ///STEP2.1:Queued Writes data if any
@@ -236,7 +242,7 @@ void server_rd_rsp(u8 attOpcode, u16 attHandle, u8 pdu_type)
         default:
             att_notFd( pdu_type, attOpcode, attHandle );/*the default response, also for the purpose of error robust */
             break;
-    }               
+    }
 }
 
 void server_blob_rd_rsp(u8 attOpcode, u16 attHandle, u8 dataHdrP,u16 offset)
@@ -248,7 +254,7 @@ int GetPrimaryServiceHandle(unsigned short hd_start, unsigned short hd_end,
                             unsigned short uuid16,   
                             unsigned short* hd_start_r,unsigned short* hd_end_r)
 {
-// example    
+// example
 //    if((uuid16 == 0x1812) && (hd_start <= 0x19))// MUST keep match with the information save in function  att_server_rdByGrType(...)
 //    {
 //        *hd_start_r = 0x19;

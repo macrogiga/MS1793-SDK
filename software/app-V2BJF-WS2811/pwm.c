@@ -135,12 +135,15 @@ void TIM1_BRK_UP_TRG_COM_IRQHandler()
         //GPIOB->BRR = GPIO_Pin_3;
     }
 }
-
+extern u8 flag_newcmd;
 static void UpdatePWMData(u8 color_g, u8 color_r, u8 color_b)
 {
-    unsigned char i,j;
-    
-    for (i=0; i<LED_TOTAL; i++)
+    static u8 i = 0;
+    u8 j = 0;
+
+    if(flag_newcmd == 0) return;
+    flag_newcmd = 0;
+
     {
         for (j=0; j<8; j++){
             if (color_g & (1<<(7-j))){
@@ -166,6 +169,8 @@ static void UpdatePWMData(u8 color_g, u8 color_r, u8 color_b)
             }
         }
     }
+
+    if(++i >= LED_TOTAL) i = 0;
 }
 
 void UpdateColor(void)
