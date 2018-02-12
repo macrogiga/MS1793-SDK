@@ -1,4 +1,40 @@
-****MS1793 IO resources****
+****MS1793EVB1.1 IO resources****
+========SPI========
+CSN: GPB8
+MOSI:GPB5
+MISO:GPB4
+SCK: GPB3
+
+IRQ: GPA12/GPA4(jumper)
+
+-----led/huancaiGRB-----
+GPA8
+
+-----RGB led---------
+R - GPA4
+G - GPA11
+B - GPA7
+
+-----DHT11 temperature/humidity sensor
+GPA7
+
+----Buzzer---------
+GPA7
+
+
+1====OLED/DHT11 demo==========================
+OLED display(H64 W128)  IIC(GPA9/10)
+
+DHT11 GPA7
+
+*under interupt running mode, IIC cannot use IRQ mode
+*for OLED display and dht read, low power can only use SLEEP mode
+
+
+============================================
+
+
+****MS1793EVB1.0 IO resources****
 
 ========SPI========
 CSN: GPB8
@@ -19,9 +55,9 @@ PGA7
 ======PWM=========
 GPA9
 GPA10
-PGA11
+GPA11
 GPA4
-PGA7
+GPA7
 
 
 
@@ -64,4 +100,9 @@ PA0 按键自拍
 7====LED-V2BJF-WS28111=====================
 GPA8  OUT to WS2811(1.7us)
 
-==============================================
+
+8====AirSync=============================
+微信硬件接入
+
+
+============================================
