@@ -49,6 +49,9 @@
 
 /* ADCFG register Mask */
 #define ADCFG_CLEAR_Mask             ((uint32_t)0xFFFFFF8F)
+#define ADCFG_SAMCTL_Set             ((uint32_t)0x1c00)
+#define ADCFG_TSEN_Set                ((uint32_t)0x00000004)
+#define ADCFG_VSEN_Set                ((uint32_t)0x00000008)
 
 /* ADC ADEN mask */
 #define ADCFG_ADEN_Set                ((uint32_t)0x00000001)
@@ -76,7 +79,10 @@
 #define CHEN6_ENABLE								((uint32_t)0x00000040)
 #define CHEN7_ENABLE								((uint32_t)0x00000080)
 #define CHEN8_ENABLE								((uint32_t)0x00000100)
-#define CHALL_ENABLE                				((uint32_t)0x000001ff)
+#define CHEN9_ENABLE								((uint32_t)0x00000200)
+#define CHEN10_ENABLE								((uint32_t)0x00004000)
+#define CHEN11_ENABLE								((uint32_t)0x00008000)
+#define CHALL_ENABLE                				((uint32_t)0x0000C3ff)
 
 #define CHEN_DISABLE								((uint32_t)0xFFFFFE00)
 
@@ -90,8 +96,11 @@
 #define ADCR_AWDCH_Reset             				((uint32_t)0xFFFF0FFF)
 
 /* ADC TSPD mask */
-#define ADCHS_TSVREFE_Set            				((uint32_t)0x00000100)
-#define ADCHS_TSVREFE_Reset            				((uint32_t)0xFFFFFEFF)
+#define ADCHS_TSVREFE_Set            			((uint32_t)0x00000100)
+#define ADCHS_TSVREFE_Reset            			((uint32_t)0xFFFFFEFF)
+
+#define ADCHS_VSVREFE_Set            			((uint32_t)0x00008000)
+#define ADCHS_VSVREFE_Reset            			((uint32_t)0xFFFF7FFF)
 
 /* ADC1 DATA register base address */
 #define ADDATA_ADDRESS                  			((uint32_t)0x40012400)
@@ -387,7 +396,7 @@ void ADC_RegularChannelConfig(ADC_TypeDef* ADCx, uint8_t ADC_Channel, uint8_t Ra
   assert_param(IS_ADC_REGULAR_RANK(Rank));
   assert_param(IS_ADC_SAMPLE_TIME(ADC_SampleTime));
   tmpreg = ADCx->ADCFG;
-  tmpreg &= ~(ADC_SMPR_SMP<<10);
+  tmpreg &= ~(ADCFG_SAMCTL_Set);
   ADCx->ADCFG = tmpreg|((ADC_SampleTime&ADC_SMPR_SMP)<<10);
   switch(ADC_Channel)
   {
@@ -418,6 +427,12 @@ void ADC_RegularChannelConfig(ADC_TypeDef* ADCx, uint8_t ADC_Channel, uint8_t Ra
   /* set the SENSOREN bit for channel 8 enable*/
   case ADC_Channel_8: ADCx->ADCHS |= CHEN8_ENABLE;  //SENSOREN or VREFINT
   break;
+  case ADC_Channel_9: ADCx->ADCHS |= CHEN9_ENABLE;  
+      break;
+  case ADC_Channel_10: ADCx->ADCHS |= CHEN10_ENABLE; //Temperature Sensor
+      break;
+  case ADC_Channel_11: ADCx->ADCHS |= CHEN11_ENABLE; //Voltage Sensor
+      break;
   case ADC_Channel_All:ADCx->ADCHS |= CHALL_ENABLE;  //SENSOREN or VREFINT
   break;
   default:
@@ -662,14 +677,40 @@ void ADC_TempSensorVrefintCmd(FunctionalState NewState)
   {
     /* Enable the temperature sensor and Vrefint channel*/
     ADC1->ADCHS |= ADCHS_TSVREFE_Set ;
-    
   }
   else
   {
     /* Disable the temperature sensor and Vrefint channel*/
     ADC1->ADCHS &= ADCHS_TSVREFE_Reset;
-    
   }
+}
+
+/**
+* @brief  Enables or disables the temperature sensor and Vrefint channel.
+* @param NewState: new state of the temperature sensor.
+*   This parameter can be: ENABLE or DISABLE.
+* @retval : None
+*/
+void ADC_VrefintCmd(FunctionalState NewState)
+{
+    /* Check the parameters */
+    assert_param(IS_FUNCTIONAL_STATE(NewState));
+    if (NewState != DISABLE)
+    {
+        /* Enable Voltage sensor */
+        ADC1->ADCFG |= ADCFG_VSEN_Set;
+
+        /* Enable the temperature sensor and Vrefint channel*/
+        //ADC1->ADCHS |= ADCHS_VSVREFE_Set ;
+    }
+    else
+    {
+        /* Disbale temperature sensor */
+        ADC1->ADCFG &= ~ADCFG_VSEN_Set;
+
+        /* Disable the temperature sensor and Vrefint channel*/
+        ADC1->ADCHS &= ADCHS_VSVREFE_Reset;
+    }
 }
 
 /**

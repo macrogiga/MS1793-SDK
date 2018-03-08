@@ -32,7 +32,11 @@ void ADC1_SingleChannel(uint8_t ADC_Channel_x)
     ADC_RegularChannelConfig(ADC1, DISABLE_ALL_CHANNEL , 0, 0); 
     /*使能选中通道,后面参数保留*/
     ADC_RegularChannelConfig(ADC1, ADC_Channel_x, 0, ADC_SampleTime_13_5Cycles); 
-    
+    if(ADC_Channel_x == ADC_Channel_11)
+    {
+        /*1.2V参考电压使能*/
+        ADC_VrefintCmd(ENABLE);
+    }
     ADC_Cmd(ADC1, ENABLE); 
 }
 

@@ -3,7 +3,7 @@
 #include "HAL_device.h" 
 #include "HAL_conf.h"
 
-#define DISABLE_ALL_CHANNEL     9
+#define DISABLE_ALL_CHANNEL     12
 
 
 void ADC1_SingleChannel(uint8_t ADC_Channel_x);

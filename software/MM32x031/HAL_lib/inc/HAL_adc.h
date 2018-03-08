@@ -202,14 +202,18 @@ typedef struct
 #define ADC_Channel_6                               ((uint8_t)0x06)
 #define ADC_Channel_7                               ((uint8_t)0x07)
 #define ADC_Channel_8                               ((uint8_t)0x08)
-#define ADC_Channel_All															((uint8_t)0x0f)
+#define ADC_Channel_9                               ((uint8_t)0x09)
+#define ADC_Channel_10                              ((uint8_t)0x0A) /*tempsensor*/
+#define ADC_Channel_11                              ((uint8_t)0x0B) /*vref 1.2V*/
+#define ADC_Channel_All                            ((uint8_t)0x0f)
 
 
 #define IS_ADC_CHANNEL(CHANNEL) (((CHANNEL) == ADC_Channel_0) || ((CHANNEL) == ADC_Channel_1) || \
 ((CHANNEL) == ADC_Channel_2) || ((CHANNEL) == ADC_Channel_3) || \
   ((CHANNEL) == ADC_Channel_4) || ((CHANNEL) == ADC_Channel_5) || \
     ((CHANNEL) == ADC_Channel_6) || ((CHANNEL) == ADC_Channel_7) || \
-      ((CHANNEL) == ADC_Channel_8) || ((CHANNEL) == ADC_Channel_All))
+      ((CHANNEL) == ADC_Channel_8) || ((CHANNEL) == ADC_Channel_9) || \
+      ((CHANNEL) == ADC_Channel_10) || ((CHANNEL) == ADC_Channel_11) || ((CHANNEL) == ADC_Channel_All))
 /**
 * @}
 */
@@ -422,6 +426,7 @@ FlagStatus ADC_GetFlagStatus(ADC_TypeDef* ADCx, uint8_t ADC_FLAG);
 void ADC_ClearFlag(ADC_TypeDef* ADCx, uint8_t ADC_FLAG);
 ITStatus ADC_GetITStatus(ADC_TypeDef* ADCx, uint16_t ADC_IT);
 void ADC_ClearITPendingBit(ADC_TypeDef* ADCx, uint16_t ADC_IT);
+void ADC_VrefintCmd(FunctionalState NewState);
 
 #endif /*__HAL_ADC_H */
 
