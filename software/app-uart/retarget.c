@@ -10,20 +10,22 @@ extern void ChangeBaudRate(void);
 
 #define MS1793_UART_VERSION_STRING  "IND:Ver1.0\n"
 
-#define FLASH_DEVICE_ADDR 0xa8
-#define DMA1_Channel6  ((DMA_Channel_TypeDef *) DMA1_Channel6_BASE)
-#define DMA1_Channel6_BASE    (AHBPERIPH_BASE + 0x006C)
+//#define FLASH_DEVICE_ADDR 0xa8
+//#define DMA1_Channel6  ((DMA_Channel_TypeDef *) DMA1_Channel6_BASE)
+//#define DMA1_Channel6_BASE    (AHBPERIPH_BASE + 0x006C)
 
 #define MAX_SIZE 200
-u8 txBuf[MAX_SIZE],rxBuf[MAX_SIZE];
-static u16 RxCont=0;
+u8 txBuf[MAX_SIZE], rxBuf[MAX_SIZE];
+
+static u16 RxCont = 0;
 static u8 PosW = 0, txLen = 0;
+unsigned int RxTimeout = 0;
+unsigned int TxTimeout = 0;
 
 extern volatile unsigned int SysTick_Count;
-extern unsigned int TxTimeout;
 extern u32 BaudRate;
 extern unsigned char SleepStop;
-unsigned int RxTimeout;
+
 
 int fputc(int ch, FILE *f)
 {
@@ -44,13 +46,13 @@ int fputc(int ch, FILE *f)
 int fgetc(FILE *f)
 {
     while(1)
-	{
-		if(UART_GetITStatus(UART1, UART_IT_RXIEN))	
-		{
-			UART_ClearITPendingBit(UART1, UART_IT_RXIEN);  //	
-			break;
-		}
-	}
+    {
+        if(UART_GetITStatus(UART1, UART_IT_RXIEN))
+        {
+            UART_ClearITPendingBit(UART1, UART_IT_RXIEN);  //
+            break;
+        }
+    }
     
     return (int)UART_ReceiveData(UART1);
 }
@@ -84,7 +86,6 @@ void UART1_IRQHandler(void)                	//串口1中断服务程序
         }
 
         if (PosW >= txLen){
-            
             txLen = 0;
             PosW = 0;
         }

@@ -27,7 +27,7 @@
 #include <string.h>
 #include "HAL_conf.h"
 #include "mg_api.h"
-#include "bsp.h"
+#include "BSP.h"
 #include "oled.h"
 #include "iwdg.h"
 
@@ -133,7 +133,6 @@ u8 GetCharListDim(void)
 void att_server_rdByGrType( u8 pdu_type, u8 attOpcode, u16 st_hd, u16 end_hd, u16 att_type )
 {
  //!!!!!!!!  hard code for gap and gatt, make sure here is 100% matched with database:[AttCharList] !!!!!!!!!
-                     
     if((att_type == GATT_PRIMARY_SERVICE_UUID) && (st_hd == 1))//hard code for device info service
     {
         u8 t[] = {0x00,0x18};
@@ -159,7 +158,7 @@ void att_server_rdByGrType( u8 pdu_type, u8 attOpcode, u16 st_hd, u16 end_hd, u1
         return;
     }
     ///error handle
-    att_notFd( pdu_type, attOpcode, st_hd );
+    att_ErrorFd_eCode(pdu_type, attOpcode, st_hd, 0x0A); //ATT_ERR_ATTR_NOT_FOUND
 }
 ///STEP2:data coming
 ///write response, data coming....
@@ -174,7 +173,7 @@ void ser_write_rsp(u8 pdu_type/*reserved*/, u8 attOpcode/*reserved*/,
             break;
         
         default:
-            att_notFd( pdu_type, attOpcode, att_hd );  /*the default response, also for the purpose of error robust */
+            att_ErrorFd_eCode(pdu_type, attOpcode, 0x0000, 0x06);//ATT_ERR_UNSUPPORTED_REQ
             break;
     }
  }
@@ -222,6 +221,10 @@ void server_rd_rsp(u8 attOpcode, u16 attHandle, u8 pdu_type)
             att_server_rd( pdu_type, attOpcode, attHandle, (u8*)(SOFTWARE_INFO), sizeof(SOFTWARE_INFO)-1);
             break;
         
+        case 0x12:
+            att_ErrorFd_eCode(pdu_type, attOpcode, attHandle, 0x02); //ATT_ERR_READ_NOT_PERMITTED
+            break;
+        
         case 0x13://cfg
         case 0x19://cfg
         case 0x15:
@@ -233,7 +236,7 @@ void server_rd_rsp(u8 attOpcode, u16 attHandle, u8 pdu_type)
             break;
         
         default:
-            att_notFd( pdu_type, attOpcode, attHandle );/*the default response, also for the purpose of error robust */
+            att_ErrorFd_eCode(pdu_type, attOpcode, 0x0000, 0x06); //ATT_ERR_UNSUPPORTED_REQ
             break;
     }
 }

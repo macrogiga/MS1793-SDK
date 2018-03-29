@@ -3,15 +3,9 @@
 
 
 
-UART_InitTypeDef UART_InitStructure;
-u32 BaudRate = 9600;//9600;
-
-extern volatile unsigned int SysTick_Count;
-extern unsigned int RxTimeout;
-extern unsigned int TxTimeout;
 
 unsigned char SleepStop = 0x00; //01-sleep, 02-stop
-unsigned char SleepStatus = 0;
+
 /********************************************************************************************************
 **函数信息 ：SPIM_TXEn(SPI_TypeDef* SPIx)                     
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
@@ -68,7 +62,7 @@ void SPIM_RXDisable(SPI_TypeDef* SPIx)
 ********************************************************************************************************/
 void SPIM_Init(SPI_TypeDef* SPIx,unsigned short spi_baud_div)
 {
-    SPI_InitTypeDef  SPI_InitStructure;
+    SPI_InitTypeDef SPI_InitStructure;
     GPIO_InitTypeDef GPIO_InitStructure;
 	
 	if(SPIx==SPI1)
@@ -76,7 +70,7 @@ void SPIM_Init(SPI_TypeDef* SPIx,unsigned short spi_baud_div)
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);  //SPI1 clk enable
 		SPI_CS_Disable;
 		
-		RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB| RCC_AHBPeriph_GPIOD, ENABLE);
+		RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB, ENABLE);
 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource5, GPIO_AF_0);
 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource4, GPIO_AF_0);
 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource3, GPIO_AF_0);
@@ -179,6 +173,7 @@ void UartInit(UART_TypeDef* UARTx)
     //GPIO端口设置
     GPIO_InitTypeDef GPIO_InitStructure;
     NVIC_InitTypeDef NVIC_InitStructure;
+    UART_InitTypeDef UART_InitStructure;
     
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_UART1, ENABLE);	//使能UART1，GPIOA时钟
     
@@ -193,7 +188,7 @@ void UartInit(UART_TypeDef* UARTx)
     GPIO_PinAFConfig(GPIOA,GPIO_PinSource9,GPIO_AF_1);
     GPIO_PinAFConfig(GPIOA,GPIO_PinSource10,GPIO_AF_1);
     
-    UART_InitStructure.UART_BaudRate = BaudRate;//串口波特率
+    UART_InitStructure.UART_BaudRate = 115200;//串口波特率
     UART_InitStructure.UART_WordLength = UART_WordLength_8b;//字长为8位数据格式
     UART_InitStructure.UART_StopBits = UART_StopBits_1;//一个停止位
     UART_InitStructure.UART_Parity = UART_Parity_No;//无奇偶校验位
@@ -215,36 +210,12 @@ void UartInit(UART_TypeDef* UARTx)
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;//PA10
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;//浮空输入
     GPIO_Init(GPIOA, &GPIO_InitStructure);//初始化GPIOA.10  
-
-
-    //RTS
-    GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_11;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; // 推挽输出
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-    //CTS
-    GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_2;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
-    GPIO_Init(GPIOD, &GPIO_InitStructure);
-
-    GPIO_ResetBits(GPIOA, GPIO_Pin_11);
-}
-
-void ChangeBaudRate(void)
-{
-	UART_Cmd(UART1, DISABLE);
-	UART_InitStructure.UART_BaudRate = BaudRate;//串口波特率
-	UART_Init(UART1, &UART_InitStructure); //初始化串口1
-	UART_Cmd(UART1, ENABLE);
 }
 
 void SysTick_Configuration(void)
 {
     SysTick_Config(48000);
 }
-
 
 void LED_ONOFF(unsigned char onFlag)//module indicator,GPA8
 {
@@ -255,6 +226,15 @@ void LED_ONOFF(unsigned char onFlag)//module indicator,GPA8
     }
 }
 
+void Sys_Standby(void)
+{  
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);	//使能PWR外设时钟
+    //	RCC->APB2RSTR|=0X01FC;//复位所有IO口
+	PWR_WakeUpPinCmd(ENABLE);  //使能唤醒管脚功能
+	PWR_EnterSTANDBYMode();	  //进入待命（STANDBY）模式 
+	
+}
+
 void BSP_Init(void)
 {
 	NVIC_InitTypeDef NVIC_InitStructure;
@@ -262,33 +242,44 @@ void BSP_Init(void)
 	GPIO_InitTypeDef GPIO_InitStructure;
 	
 	SystemClk_HSEInit();
-	
 	SysTick_Configuration();
     
 	//SPIM_Init(SPI1,0x08); //6Mhz
     SPIM_Init(SPI1,0x06); //8Mhz
+    //UartInit(UART1);
 	
-	//IRQ - pA12
+	//IRQ - pa12
 	GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_12;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //上拉输入   
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //上拉输入
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 	
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;	 //PA.0
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;//下拉输入
+	GPIO_InitStructure.GPIO_Pin =GPIO_Pin_0;	 //PA.0
+    GPIO_InitStructure.GPIO_Mode =GPIO_Mode_IPD;//下拉输入
     GPIO_Init(GPIOA, &GPIO_InitStructure);	//初始化IO
     
     //module led indicator PA8
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_5);
+    GPIO_PinAFConfig(GPIOA,GPIO_PinSource8,GPIO_AF_5);
 	GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_8;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
     
-	
+//    //motor module PD2,PD3
+//    GPIO_PinAFConfig(GPIOD,GPIO_PinSource2,GPIO_AF_5);
+//    GPIO_PinAFConfig(GPIOD,GPIO_PinSource3,GPIO_AF_5);
+//	GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_2 | GPIO_Pin_3;
+//	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+//	GPIO_Init(GPIOD, &GPIO_InitStructure);
+//    
+//    GPIO_ResetBits(GPIOD, GPIO_Pin_2);
+//    GPIO_ResetBits(GPIOD, GPIO_Pin_3);
+    
+
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
-	
+
 	SYSCFG_EXTILineConfig(GPIO_PortSourceGPIOA, GPIO_PinSource12);
 	EXTI_InitStructure.EXTI_Line = EXTI_Line12;
 	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
@@ -301,11 +292,23 @@ void BSP_Init(void)
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
-    NVIC_SetPriority (EXTI4_15_IRQn, (1<<__NVIC_PRIO_BITS) - 1); 
+	NVIC_SetPriority (EXTI4_15_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
     
 //	PWR->CR = PWR->CR & 0xfffd; //PDDS = 0;enter stop mode
 //	SCB->SCR |= 0x4;
+/*
+    //key
+    GPIO_PinAFConfig(GPIOA,GPIO_PinSource3,GPIO_AF_3);
+    GPIO_PinAFConfig(GPIOA,GPIO_PinSource4,GPIO_AF_3);
+    GPIO_PinAFConfig(GPIOA,GPIO_PinSource7,GPIO_AF_3);
+    GPIO_PinAFConfig(GPIOA,GPIO_PinSource11,GPIO_AF_3);
+    GPIO_PinAFConfig(GPIOA,GPIO_PinSource10,GPIO_AF_5);
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_7|GPIO_Pin_10|GPIO_Pin_11;	 //PA.3/4/7/10/11
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;//下拉输入
+    GPIO_Init(GPIOA, &GPIO_InitStructure);	//初始化IO*/
 }
+
+
 
 
 /////////////////////Following functions are porting functions/////////////////////////////////
@@ -333,54 +336,59 @@ char IsIrqEnabled(void) //porting api
     return (!(GPIO_ReadInputData(GPIOA) & 0x1000)); //GPA12
 }
 
+
+
+#define TOUT_STDBY 300 //1000/200*60 = 300, 1 min
+extern unsigned int StandbyTimeout;
 void McuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
 {
-#ifdef USE_UART
-    if ((SleepStop)&&
-        (TxTimeout < SysTick_Count)&&
-        (RxTimeout < SysTick_Count))
+/*    if (TOUT_STDBY < StandbyTimeout)
     {
-        if(SleepStop == 1){//sleep
-            //SysClk48to8();
-            SCB->SCR &= 0xfb;
-            __WFE();
-            //SysClk8to48();
-        }else{ //stop
-            SysClk48to8();
-            SCB->SCR |= 0x4;
-            __WFI();
-            
-            RCC->CR|=RCC_CR_HSION;
-            RCC->CR |= RCC_CR_PLLON;
-            RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;
-            SysTick_Config(48000);
-            GPIO_ResetBits(GPIOA, GPIO_Pin_11);
-        }
-    }
+        RCC_LSICmd(DISABLE);  //in STANDBY iwdg will cause reset
+        
+        radio_standby();
+        
+        Sys_Standby();
+    }else{ //enter SLEEP/STOP to save power
+#if 0 //SLEEP
+        SysClk48to8();
+        SCB->SCR &= 0xFB;
+        __WFE();
+        
+        SysClk8to48();
+#else //STOP
+        SysClk48to8();
+        SCB->SCR |= 0x4;
+        __WFI();
+        
+        RCC->CR|=RCC_CR_HSION;
+        RCC->CR |= RCC_CR_PLLON;
+        RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;
+        SysTick_Config(48000);
 #endif
+    }*/
 }
-void IrqMcuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
+
+void IrqMcuGotoSleepAndWakeup(void)
 {
-    if(ble_run_interrupt_McuCanSleep() == 0) return;
-    ///if(SleepStatus) return;
-#ifdef USE_UART
-    if ((SleepStop)&&
-        (TxTimeout < SysTick_Count)&&
-        (RxTimeout < SysTick_Count))
+    if(ble_run_interrupt_McuCanSleep())
     {
-        if(SleepStop == 1){//sleep
-            SleepStatus = 1;
-            //SysClk48to8();
-            SCB->SCR &= 0xfb;
-            __WFE();
-        }else{ //stop
-            SleepStatus = 2;
+        if (TOUT_STDBY < StandbyTimeout)
+        {
+            RCC_LSICmd(DISABLE);  //in STANDBY iwdg will cause reset
+            
+            radio_standby();
+            Sys_Standby();
+        }else{ //enter SLEEP/STOP to save power
+    #if 1//STOP
+            SleepStop = 2;
             SysClk48to8();
             SCB->SCR |= 0x4;
             __WFI();
+    #endif
         }
+
     }
-#endif
 }
 
 //////DO NOT REMOVE, used in ble lib///////
@@ -391,20 +399,18 @@ void SysClk8to48(void)
 }
 void SysClk48to8(void)
 {
-    __ASM volatile("cpsid i");
     RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);//selecting PLL clock as sys clock
     
     while (RCC_GetSYSCLKSource() != 0x0)
     {}
-
-    RCC->CR &=~(RCC_CR_PLLON);  //clear PLL
+    
+    RCC->CR &=~(RCC_CR_PLLON);		//clear PLL
     SysTick_Config(8000);
-    __ASM volatile("cpsie i");
 }
 
 static char dis_int_count = 0;
 void DisableEnvINT(void)
-{
+{ 
     //to disable int
     __ASM volatile("cpsid i");
     

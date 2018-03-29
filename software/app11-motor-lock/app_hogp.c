@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2017 Macrogiga Electronics Co., Ltd.
+    Copyright (c) 2018 Macrogiga Electronics Co., Ltd.
 
     Permission is hereby granted, free of charge, to any person 
     obtaining a copy of this software and associated documentation 
@@ -22,31 +22,31 @@
     DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef BLE_PAIR_SUPPORT //default cfg
+#ifdef BLE_PAIR_SUPPORT
+
+#define AES_HW_SUPPORT  /*AES Hardware implemntation support*/
 
 #include <string.h>
 #include "HAL_conf.h"
+#include "BSP.h"
+#include "iwdg.h"
 #include "mg_api.h"
-#include "bsp.h"
 
 
-extern void ChangeBaudRate(void);
-extern void moduleOutData(u8*data, u8 len);
+u8 Password_wr[9] = {0}; //max 8 digit password
+u8 LockFlag = 1;
 
-extern u32 BaudRate;
-//u16 NotifyCont=0;
-//u8 CanNotifyFlag = 0;
-//extern unsigned char SleepStop;
-//#define MAX_SIZE 100
-//#define NOTIFYSIZE 20
+extern void att_ErrorFd_eCode(u8 pdu_type, u8 attOpcode, u16 attHd , u8 errorCode);
+extern  unsigned char StartEncryption;
 
+u8 CanNotifyFlag = 0;
 
 /// Characteristic Properties Bit
 #define ATT_CHAR_PROP_RD                            0x02
 #define ATT_CHAR_PROP_W_NORSP                       0x04
 #define ATT_CHAR_PROP_W                             0x08
 #define ATT_CHAR_PROP_NTF                           0x10
-#define ATT_CHAR_PROP_IND                           0x20 
+#define ATT_CHAR_PROP_IND                           0x20
 #define GATT_PRIMARY_SERVICE_UUID                   0x2800
 
 #define TYPE_CHAR      0x2803
@@ -58,22 +58,16 @@ extern u32 BaudRate;
 #define UUID16_FORMAT  0xff
 
 
-#define SOFTWARE_INFO "SV2.1.4"
+#define SOFTWARE_INFO "SV3.3.0"
 #define MANU_INFO     "MacroGiga Bluetooth"
-char DeviceInfo[11] =  "MS1793-UART";  /*max len is 24 bytes*/
+#define DeviceInfo    "MG-Lock"  /*max len is 24 bytes*/
 
-u16 cur_notifyhandle = 0x12;  //Note: make sure each notify handle by invoking function: set_notifyhandle(hd);
+u16 cur_notifyhandle = 0x14;  //Note: make sure each notify handle by invoking function: set_notifyhandle(hd);
 
 u8* getDeviceInfoData(u8* len)
-{
+{    
     *len = sizeof(DeviceInfo);
     return (u8*)DeviceInfo;
-}
-
-void updateDeviceInfoData(u8* name, u8 len)
-{
-    memcpy(DeviceInfo,name, len);
-    ble_set_name(name,len);
 }
 
 /**********************************************************************************
@@ -84,13 +78,7 @@ void updateDeviceInfoData(u8* name, u8 len)
 07 - 0f  Device Info (Primary service) 0x180a
   0a:0b  firmware version
   0e:0f  software version
-10 - 19  LED service (Primary service) 6E400001-B5A3-F393-E0A9-E50E24DCCA9E
-  11:12  6E400003-B5A3-F393-E0A9-E50E24DCCA9E(0x04)  RxNotify
-  13     cfg
-  14:15  6E400002-B5A3-F393-E0A9-E50E24DCCA9E(0x0C)  Tx
-  16     cfg
-  17:18  6E400004-B5A3-F393-E0A9-E50E24DCCA9E(0x0A)  BaudRate
-  19     0x2901  info
+  hid service (Primary service) ...
 ************************************************************************************/
 
 typedef struct ble_character16{
@@ -100,7 +88,7 @@ typedef struct ble_character16{
     u8  uuid128_idx;     //0xff means uuid16,other is idx of uuid128
 }BLE_CHAR;
 
-typedef struct ble_UUID128{    
+typedef struct ble_UUID128{
     u8  uuid128[16];//uuid128 string: little endian
 }BLE_UUID128;
 
@@ -114,22 +102,17 @@ const BLE_CHAR AttCharList[] = {
 // ======  device info =====    Do NOT Change if using the default!!!  
     {TYPE_CHAR,0x0008, {ATT_CHAR_PROP_RD, 0x09,0, 0x29,0x2a}, UUID16_FORMAT},//manufacture
     {TYPE_CHAR,0x000a, {ATT_CHAR_PROP_RD, 0x0b,0, 0x26,0x2a}, UUID16_FORMAT},//firmware version
+    {TYPE_CHAR,0x000c, {ATT_CHAR_PROP_RD, 0x0d,0, 0x50,0x2a}, UUID16_FORMAT},//PnPID
     {TYPE_CHAR,0x000e, {ATT_CHAR_PROP_RD, 0x0f,0, 0x28,0x2a}, UUID16_FORMAT},//sw version
-    
-// ======  User service or other services added here =====  User defined  
-    {TYPE_CHAR,0x0011, {ATT_CHAR_PROP_NTF,                     0x12,0, 0,0}, 1/*uuid128-idx1*/ },//RxNotify
-    {TYPE_CFG, 0x0013, {ATT_CHAR_PROP_RD|ATT_CHAR_PROP_W}},//cfg    
-    {TYPE_CHAR,0x0014, {ATT_CHAR_PROP_W|ATT_CHAR_PROP_W_NORSP, 0x15,0, 0,0}, 2/*uuid128-idx2*/ },//Tx    
-	{TYPE_CHAR,0x0017, {ATT_CHAR_PROP_W|ATT_CHAR_PROP_RD,      0x18,0, 0,0}, 3/*uuid128-idx3*/ },//BaudRate
-    {TYPE_INFO,0x0019, {ATT_CHAR_PROP_RD}}//description,"BaudRate"
+
+// ======  scan prameter service  ======
+    {TYPE_CHAR,0x0011, {ATT_CHAR_PROP_W_NORSP,              0x12,0, 0xf1,0xff}, UUID16_FORMAT},//unlock command
+    {TYPE_CHAR,0x0013, {ATT_CHAR_PROP_RD|ATT_CHAR_PROP_NTF, 0x14,0, 0xf2,0xff}, UUID16_FORMAT},//lock state
+    {TYPE_CFG, 0x15,ATT_CHAR_PROP_RD|ATT_CHAR_PROP_W}//cfg
 };
 
 const BLE_UUID128 AttUuid128List[] = {
-    /*for supporting the android app [nRF UART V2.0], one SHOULD using the 0x9e,0xca,0xdc.... uuid128*/
-    {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,1,0,0x40,0x6e}, //idx0,little endian, service uuid
-    {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,3,0,0x40,0x6e}, //idx1,little endian, RxNotify
-    {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,2,0,0x40,0x6e}, //idx2,little endian, Tx
-    {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,4,0,0x40,0x6e}, //idx3,little endian, BaudRate
+    {0}, //empty
 };
 
 u8 GetCharListDim(void)
@@ -143,7 +126,6 @@ u8 GetCharListDim(void)
 void att_server_rdByGrType( u8 pdu_type, u8 attOpcode, u16 st_hd, u16 end_hd, u16 att_type )
 {
  //!!!!!!!!  hard code for gap and gatt, make sure here is 100% matched with database:[AttCharList] !!!!!!!!!
-                     
     if((att_type == GATT_PRIMARY_SERVICE_UUID) && (st_hd == 1))//hard code for device info service
     {
         //att_server_rdByGrTypeRspDeviceInfo(pdu_type);//using the default device info service
@@ -152,7 +134,7 @@ void att_server_rdByGrType( u8 pdu_type, u8 attOpcode, u16 st_hd, u16 end_hd, u1
         att_server_rdByGrTypeRspPrimaryService(pdu_type,0x1,0x6,(u8*)(t),2);
         return;
     }
-    else if((att_type == GATT_PRIMARY_SERVICE_UUID) && (st_hd <= 0x07))//hard code for device info service
+    else if((att_type == GATT_PRIMARY_SERVICE_UUID) && (st_hd <= 0x07)) //usr's service
     {
         //apply user defined (device info)service example
         u8 t[] = {0xa,0x18};
@@ -162,52 +144,43 @@ void att_server_rdByGrType( u8 pdu_type, u8 attOpcode, u16 st_hd, u16 end_hd, u1
     
     else if((att_type == GATT_PRIMARY_SERVICE_UUID) && (st_hd <= 0x10)) //usr's service
     {
-        att_server_rdByGrTypeRspPrimaryService(pdu_type,0x10,0x19,(u8*)(AttUuid128List[0].uuid128),16);
+        u8 hid[2] = {0xf0,0xff};
+        att_server_rdByGrTypeRspPrimaryService(pdu_type,0x10,0x15,(u8*)(hid),2);
         return;
     }
-    //other service added here if any
-    //to do....
-
     ///error handle
-    att_notFd( pdu_type, attOpcode, st_hd );
+    att_ErrorFd_eCode(pdu_type, attOpcode, st_hd, 0x0A); //ATT_ERR_ATTR_NOT_FOUND
 }
-
 
 ///STEP2:data coming
 ///write response, data coming....
 void ser_write_rsp(u8 pdu_type/*reserved*/, u8 attOpcode/*reserved*/, 
                    u16 att_hd, u8* attValue/*app data pointer*/, u8 valueLen_w/*app data size*/)
 {
- 
     switch(att_hd)
     {
-        case 0x18://BaudRate
-			BaudRate = ((*(attValue+2))<<16)|((*(attValue+1))<<8)|(*attValue);
-			ser_write_rsp_pkt(pdu_type);
-			ChangeBaudRate();
-			break;
-        case 0x15://Tx
-#ifdef USE_UART
-    #ifdef USE_AT_CMD
-            moduleOutData("IND:DATA",8);
-            moduleOutData(&valueLen_w,1);
-            moduleOutData("=",1);
-    #endif
-            moduleOutData(attValue,valueLen_w);
-#endif
-
-        case 0x12://cmd
-        case 0x13://cfg  
-            ser_write_rsp_pkt(pdu_type);  /*if the related character has the property of WRITE(with response) or TYPE_CFG, one MUST invoke this func*/      
+        case 0x12://unlock
+            if (StartEncryption)
+            {
+                if (valueLen_w < 9)
+                {
+                    Password_wr[0] = valueLen_w;
+                    memcpy(&Password_wr[1], attValue, valueLen_w);
+                }
+            }else{
+                Password_wr[0] = 0;
+            }
+        case 0x15://cfg
+            ser_write_rsp_pkt(pdu_type); /*if the related character has the property of WRITE(with response) or TYPE_CFG, one MUST invoke this func*/
             break;
         
         default:
-            att_notFd( pdu_type, attOpcode, att_hd );	/*the default response, also for the purpose of error robust */
+            att_ErrorFd_eCode(pdu_type, attOpcode, 0x0000, 0x06);//ATT_ERR_UNSUPPORTED_REQ
             break;
     }
  }
 
-///STEP2.1:Queued Writes data if any
+ ///STEP2.1:Queued Writes data if any
 void ser_prepare_write(u16 handle, u8* attValue, u16 attValueLen, u16 att_offset)//user's call back api 
 {
     //queued data:offset + data(size)
@@ -219,7 +192,6 @@ void ser_prepare_write(u16 handle, u8* attValue, u16 attValueLen, u16 att_offset
 void ser_execute_write(void)//user's call back api 
 {
     //end of queued writes  
-    
     //to do...    
 }
 
@@ -227,7 +199,6 @@ void ser_execute_write(void)//user's call back api
 //// read response
 void server_rd_rsp(u8 attOpcode, u16 attHandle, u8 pdu_type)
 {
-    u8 tab[3];
     u8  d_len;
     u8* ble_name = getDeviceInfoData(&d_len);
     
@@ -236,46 +207,45 @@ void server_rd_rsp(u8 attOpcode, u16 attHandle, u8 pdu_type)
         case 0x04: //GAP name
             att_server_rd( pdu_type, attOpcode, attHandle, ble_name, d_len);
             break;
-                
+        
         case 0x09: //MANU_INFO
             //att_server_rd( pdu_type, attOpcode, attHandle, (u8*)(MANU_INFO), sizeof(MANU_INFO)-1);
             att_server_rd( pdu_type, attOpcode, attHandle, get_ble_version(), strlen((const char*)get_ble_version())); //ble lib build version
             break;
         
         case 0x0b: //FIRMWARE_INFO
-        {            
+        {
             //do NOT modify this code!!!
             att_server_rd( pdu_type, attOpcode, attHandle, GetFirmwareInfo(),strlen((const char*)GetFirmwareInfo()));
             break;
         }
         
-        case 0x0f://SOFTWARE_INFO
+        case 0x0d: //PnPID
+        {
+            u8 t[7] = {0,0,0,0,0,0,0};
+            att_server_rd( pdu_type, attOpcode, attHandle, t, 7);
+            break;
+        }
+        
+        case 0x0f: //SOFTWARE_INFO
             att_server_rd( pdu_type, attOpcode, attHandle, (u8*)(SOFTWARE_INFO), sizeof(SOFTWARE_INFO)-1);
             break;
         
-        case 0x13://cfg
-            {
-                u8 t[2] = {0,0};
-                att_server_rd( pdu_type, attOpcode, attHandle, t, 2);
-            }
+        case 0x14://lock state
+            att_server_rd( pdu_type, attOpcode, attHandle, &LockFlag, 1);
             break;
-        
-        case 0x18://BaudRate
-			tab[0]=(BaudRate&0xff0000)>>16;
-			tab[1]=(BaudRate&0xff00)>>8;
-			tab[2]=BaudRate;
-			att_server_rd( pdu_type, attOpcode, attHandle, tab, 3);
+
+        case 0x15://cfg
+        {
+            u8 t[2] = {0,0};
+            att_server_rd( pdu_type, attOpcode, attHandle, t, 2);
             break;
-        
-        case 0x19: //description
-            #define MG_BaudRate "BaudRate"
-            att_server_rd( pdu_type, attOpcode, attHandle, (u8*)(MG_BaudRate), sizeof(MG_BaudRate)-1);
-            break;
-        
+        }
+
         default:
-            att_notFd( pdu_type, attOpcode, attHandle );/*the default response, also for the purpose of error robust */
+            att_ErrorFd_eCode(pdu_type, attOpcode, 0x0000, 0x06); //ATT_ERR_UNSUPPORTED_REQ
             break;
-    }               
+    }
 }
 
 void server_blob_rd_rsp(u8 attOpcode, u16 attHandle, u8 dataHdrP,u16 offset)
@@ -287,13 +257,13 @@ int GetPrimaryServiceHandle(unsigned short hd_start, unsigned short hd_end,
                             unsigned short uuid16,   
                             unsigned short* hd_start_r,unsigned short* hd_end_r)
 {
-// example    
-//    if((uuid16 == 0x1812) && (hd_start <= 0x19))// MUST keep match with the information save in function  att_server_rdByGrType(...)
-//    {
-//        *hd_start_r = 0x19;
-//        *hd_end_r = 0x2a;
-//        return 1;
-//    }
+// example
+    if((uuid16 == 0xfff0) && (hd_start <= 0x10))// MUST keep match with the information save in function  att_server_rdByGrType(...)
+    {
+        *hd_start_r = 0x10;
+        *hd_end_r = 0x15;
+        return 1;
+    }
     
     return 0;
 }
@@ -302,8 +272,14 @@ int GetPrimaryServiceHandle(unsigned short hd_start, unsigned short hd_end,
 //本回调函数可用于蓝牙模块端主动发送数据之用，协议栈会在系统允许的时候（异步）回调本函数，不得阻塞！！
 void gatt_user_send_notify_data_callback(void)
 {
-    //to do if any ...
-    //add user sending data notify operation ....
+    static u8 LockFlagBak = 1;
+    
+    if (LockFlagBak != LockFlag)
+    {
+        LockFlagBak = LockFlag;
+        
+        sconn_notifydata(&LockFlagBak,1);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -312,6 +288,8 @@ u8* getsoftwareversion(void)
     return (u8*)SOFTWARE_INFO;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void updateDeviceInfoData(u8* name, u8 len){} //not needed, just for compile's happy
+
 
 static unsigned char gConnectedFlag=0;
 char GetConnectedStatus(void)
@@ -319,37 +297,113 @@ char GetConnectedStatus(void)
     return gConnectedFlag;
 }
 
-//void LED_ONOFF(unsigned char onFlag);//module led indicator
+//---- MindMotion HardWare AES implemenation -----
+//unsigned char aes_encrypt_HW(unsigned char *painText128bitBE,unsigned char *key128bitBE); //porting api, returns zero means not supported
+unsigned char aes_encrypt_HW(unsigned char *_data, unsigned char *_key)
+{
+    unsigned int tmp;
+
+#ifndef AES_HW_SUPPORT    //HW AES NOT supported
+    return 0; //not supported
+
+#else                     //HW AES supported
+
+    AES->CR = 0x00;
+    AES->CR|=0x03<<20;
+
+    AES->KEYR3 = (u32)(_key[0] << 24)|(u32)(_key[1] << 16)|(u32)(_key[2] << 8)|(u32)(_key[3] << 0);
+    AES->KEYR2 = (u32)(_key[4] << 24)|(u32)(_key[5] << 16)|(u32)(_key[6] << 8)|(u32)(_key[7] << 0);
+    AES->KEYR1 = (u32)(_key[8] << 24)|(u32)(_key[9] << 16)|(u32)(_key[10] << 8)|(u32)(_key[11] << 0);
+    AES->KEYR0 = (u32)(_key[12] << 24)|(u32)(_key[13] << 16)|(u32)(_key[14] << 8)|(u32)(_key[15] << 0);	
+
+    AES->CR |= 0x01;  //start encryption
+
+    AES->DINR = (u32)(_data[0] << 24)|(u32)(_data[1] << 16)|(u32)(_data[2] << 8)|(u32)(_data[3] << 0);
+    AES->DINR = (u32)(_data[4] << 24)|(u32)(_data[5] << 16)|(u32)(_data[6] << 8)|(u32)(_data[7] << 0);
+    AES->DINR = (u32)(_data[8] << 24)|(u32)(_data[9] << 16)|(u32)(_data[10] << 8)|(u32)(_data[11] << 0);
+    AES->DINR = (u32)(_data[12] << 24)|(u32)(_data[13] << 16)|(u32)(_data[14] << 8)|(u32)(_data[15] << 0);	
+
+    //查询模式
+    while(1)
+    {
+        if((AES->SR & 0x01) )
+        {
+            AES->CR |=  0x1<<7; //clear ccf flag
+            break;
+        }
+    }
+//    _text[0] = AES->DOUTR;  //encrypted output data
+//    _text[1] = AES->DOUTR;
+//    _text[2] = AES->DOUTR;
+//    _text[3] = AES->DOUTR;
+    
+    tmp = AES->DOUTR;  //encrypted output data0
+    _data[0] = tmp >> 24;
+    _data[1] = tmp >> 16;
+    _data[2] = tmp >>  8;
+    _data[3] = tmp;
+    _data += 4;
+    
+    tmp = AES->DOUTR;  //encrypted output data1
+    _data[0] = tmp >> 24;
+    _data[1] = tmp >> 16;
+    _data[2] = tmp >>  8;
+    _data[3] = tmp;
+    _data += 4;
+    
+    tmp = AES->DOUTR;  //encrypted output data2
+    _data[0] = tmp >> 24;
+    _data[1] = tmp >> 16;
+    _data[2] = tmp >>  8;
+    _data[3] = tmp;
+    _data += 4;
+    
+    tmp = AES->DOUTR;  //encrypted output data3
+    _data[0] = tmp >> 24;
+    _data[1] = tmp >> 16;
+    _data[2] = tmp >>  8;
+    _data[3] = tmp;
+
+    return 1;// HW supported value
+#endif
+}
+
 
 void ConnectStausUpdate(unsigned char IsConnectedFlag) //porting api
 {
-    //[IsConnectedFlag] indicates the connection status
-    
-    LED_ONOFF(!IsConnectedFlag);
-
-    if (IsConnectedFlag != gConnectedFlag)
+    //enable/disable ase clock if any
+#ifdef AES_HW_SUPPORT
+    if(IsConnectedFlag)
     {
-        gConnectedFlag = IsConnectedFlag;
+        RCC_AHBPeriphClockCmd(RCC_AHBPeriph_AES, ENABLE); //AES CLK enable
+    }
+    else
+    {
+        RCC_AHBPeriphClockCmd(RCC_AHBPeriph_AES, DISABLE); //AES CLK enable
+    }
+#endif
+    
+    if(!IsConnectedFlag)
+    CanNotifyFlag = IsConnectedFlag; //disconnected, so can NOT notify data
 
-#ifdef USE_UART
-#ifdef USE_AT_CMD
-		if(gConnectedFlag)
-		{
-			moduleOutData((u8*)"IND:CONNECT\n",12);
-		}
-		else
-		{
-			moduleOutData((u8*)"IND:DISCONNECT\n",15);
-		}
-#else
-//        if(gConnectedFlag){
-//            SleepStop = 1;
-//        }
-//        else{
-//            SleepStop = 2;
-//        }
-#endif
-#endif
+    //[IsConnectedFlag] indicates the connection status
+    gConnectedFlag = IsConnectedFlag;
+}
+
+unsigned int StandbyTimeout = 0; 
+void UsrProcCallback(void) //porting api
+{
+    static unsigned char led_flash = 0;
+    
+    IWDG_ReloadCounter();
+    StandbyTimeout ++;
+    
+    if(gConnectedFlag){//connected
+        StandbyTimeout = 0;
+        LED_ONOFF(1);
+    }else{
+        led_flash ++;
+        LED_ONOFF(!(led_flash%10)); //flash every 10 interval
     }
 }
 

@@ -8,7 +8,6 @@
 
 
 extern volatile unsigned int SysTick_Count;
-extern void IrqMcuGotoSleepAndWakeup(void);
 
 unsigned char *ble_mac_addr;
 
@@ -38,13 +37,16 @@ int main(void)
     CaptureInit();
     OLED_Init();
     
+    SysTick_Count = 0;
+    while(SysTick_Count < 1000){}; //delay for logo display
+    
     SetBleIntRunningMode();
     radio_initBle(TXPWR_0DBM, &ble_mac_addr);
     
     ble_set_adv_data((unsigned char *)AdvDat_HRS, sizeof(AdvDat_HRS));
 
     SysTick_Count = 0;
-    while(SysTick_Count <= 1000){}; //delay at least 5ms between radio_initBle() and ble_run...
+    while(SysTick_Count < 5){}; //delay at least 5ms between radio_initBle() and ble_run...
 
     Write_Iwdg_ON(IWDG_Prescaler_32, 0x4E2); //1250*0.8ms=1s
 
@@ -65,13 +67,13 @@ int main(void)
             Timer2S = 0;
 
             if(CaptureDataGet(&ValHumi, &ValTemp)){
-                sprintf(Str," H: %d.%d%% T: %d.%d'C",ValHumi/10,ValHumi%10,ValTemp/10,ValTemp%10);
+                sprintf(Str,"H:%d.%d%% T:%d.%d'C",ValHumi/10,ValHumi%10,ValTemp/10,ValTemp%10);
             }else{
                 CaptureStop(); //recover from exception
                 Timer2S = 0;
                 while(Timer2S < 500){};
                 
-                sprintf(Str," Read error");
+                sprintf(Str," No Data");
             }
 
             if (Line > 7)
@@ -79,7 +81,8 @@ int main(void)
                 Line = 0;
                 OLED_Clear();
             }
-            OLED_DispStr(0,Line++,Str);
+            OLED_DispStr(0,Line,Str);
+            Line += 2; //+1 if use 6*8 dot, +2 if use 8*16 dot
         }
     }
 }

@@ -31,7 +31,11 @@ DHT11 GPA7
 *for OLED display and dht read, low power can only use SLEEP mode
 
 
+2====MOTOR/lock demo==========================
+PD2/PD3 for motor control
+
 ============================================
+
 
 
 ****MS1793EVB1.0 IO resources****

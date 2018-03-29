@@ -1,16 +1,14 @@
 
 /* Includes ------------------------------------------------------------------*/
-// #include "stm32f0xx_it.h"
-// #include "stm32f0xx_exti.h"
-// #include "stm32f0xx_tim.h"
-// #include "stm32f0xx_gpio.h"
 
 /** @addtogroup Template_Project
   * @{
   */
  #include "HAL_conf.h"
  #include "mg_api.h"
- 
+ #include "BSP.h"
+
+
 extern unsigned char SleepStatus;
 
 /* Private typedef -----------------------------------------------------------*/
@@ -92,7 +90,7 @@ void EXTI0_1_IRQHandler(void)
 void EXTI4_15_IRQHandler(void)
 {
     /*EXTI_ClearITPendingBit(EXTI_Line10);*/
-    EXTI_ClearITPendingBit(EXTI_Line11);
+    //EXTI_ClearITPendingBit(EXTI_Line11);
     EXTI_ClearITPendingBit(EXTI_Line12);
 
     if(1 == SleepStatus){ //sleep
@@ -105,5 +103,5 @@ void EXTI4_15_IRQHandler(void)
     }
     SleepStatus = 0;
     
-    ble_run(0);    
+    ble_run(0);
 }

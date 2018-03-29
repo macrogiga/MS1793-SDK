@@ -213,8 +213,7 @@ void BSP_Init(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
     
-//    LED_ONOFF(1);
-	
+
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 
@@ -231,9 +230,7 @@ void BSP_Init(void)
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
     NVIC_SetPriority (EXTI4_15_IRQn, (1<<__NVIC_PRIO_BITS) - 1); 
-	
-	PWR->CR = PWR->CR & 0xfffd; //PDDS = 0;enter stop mode
-	SCB->SCR |= 0x4;
+
 }
 
 

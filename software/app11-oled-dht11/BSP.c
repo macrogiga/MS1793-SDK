@@ -4,9 +4,7 @@
 
 
 
-extern unsigned int GetSysTickCount(void);
 
-//u8 status_sleep = 0;
 void ReadDHT11(void);
 
 /********************************************************************************************************
