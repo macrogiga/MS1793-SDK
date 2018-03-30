@@ -36,8 +36,7 @@
 u8 Password_wr[9] = {0}; //max 8 digit password
 u8 LockFlag = 1;
 
-extern void att_ErrorFd_eCode(u8 pdu_type, u8 attOpcode, u16 attHd , u8 errorCode);
-extern  unsigned char StartEncryption;
+extern unsigned char StartEncryption;
 
 u8 CanNotifyFlag = 0;
 
@@ -126,30 +125,37 @@ u8 GetCharListDim(void)
 void att_server_rdByGrType( u8 pdu_type, u8 attOpcode, u16 st_hd, u16 end_hd, u16 att_type )
 {
  //!!!!!!!!  hard code for gap and gatt, make sure here is 100% matched with database:[AttCharList] !!!!!!!!!
-    if((att_type == GATT_PRIMARY_SERVICE_UUID) && (st_hd == 1))//hard code for device info service
+    if (!StartEncryption)
     {
-        //att_server_rdByGrTypeRspDeviceInfo(pdu_type);//using the default device info service
-        //GAP Device Name
-        u8 t[] = {0x00,0x18};
-        att_server_rdByGrTypeRspPrimaryService(pdu_type,0x1,0x6,(u8*)(t),2);
-        return;
+        att_ErrorFd_eCode(pdu_type, attOpcode, st_hd, 0x0F); //pair needed ATT_ERR_INSUFFICIENT_ENCRYPT
     }
-    else if((att_type == GATT_PRIMARY_SERVICE_UUID) && (st_hd <= 0x07)) //usr's service
+    else
     {
-        //apply user defined (device info)service example
-        u8 t[] = {0xa,0x18};
-        att_server_rdByGrTypeRspPrimaryService(pdu_type,0x7,0xf,(u8*)(t),2);
-        return;
+        if((att_type == GATT_PRIMARY_SERVICE_UUID) && (st_hd == 1))//hard code for device info service
+        {
+            //att_server_rdByGrTypeRspDeviceInfo(pdu_type);//using the default device info service
+            //GAP Device Name
+            u8 t[] = {0x00,0x18};
+            att_server_rdByGrTypeRspPrimaryService(pdu_type,0x1,0x6,(u8*)(t),2);
+            return;
+        }
+        else if((att_type == GATT_PRIMARY_SERVICE_UUID) && (st_hd <= 0x07)) //usr's service
+        {
+            //apply user defined (device info)service example
+            u8 t[] = {0xa,0x18};
+            att_server_rdByGrTypeRspPrimaryService(pdu_type,0x7,0xf,(u8*)(t),2);
+            return;
+        }
+        
+        else if((att_type == GATT_PRIMARY_SERVICE_UUID) && (st_hd <= 0x10)) //usr's service
+        {
+            u8 hid[2] = {0xf0,0xff};
+            att_server_rdByGrTypeRspPrimaryService(pdu_type,0x10,0x15,(u8*)(hid),2);
+            return;
+        }
+        ///error handle
+        att_ErrorFd_eCode(pdu_type, attOpcode, st_hd, 0x0A); //ATT_ERR_ATTR_NOT_FOUND
     }
-    
-    else if((att_type == GATT_PRIMARY_SERVICE_UUID) && (st_hd <= 0x10)) //usr's service
-    {
-        u8 hid[2] = {0xf0,0xff};
-        att_server_rdByGrTypeRspPrimaryService(pdu_type,0x10,0x15,(u8*)(hid),2);
-        return;
-    }
-    ///error handle
-    att_ErrorFd_eCode(pdu_type, attOpcode, st_hd, 0x0A); //ATT_ERR_ATTR_NOT_FOUND
 }
 
 ///STEP2:data coming
