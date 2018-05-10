@@ -34,6 +34,25 @@
 #define	TXPWR__15DBM 48
 
 
+// ATT Error Codes
+#define ATT_ERR_INVALID_HANDLE           0x01
+#define ATT_ERR_READ_NOT_PERMITTED       0x02
+#define ATT_ERR_WRITE_NOT_PERMITTED      0x03
+#define ATT_ERR_INVALID_PDU              0x04
+#define ATT_ERR_INSUFFICIENT_AUTHEN      0x05
+#define ATT_ERR_UNSUPPORTED_REQ          0x06
+#define ATT_ERR_INVALID_OFFSET           0x07
+#define ATT_ERR_INSUFFICIENT_AUTHOR      0x08
+#define ATT_ERR_PREPARE_QUEUE_FULL       0x09
+#define ATT_ERR_ATTR_NOT_FOUND           0x0a
+#define ATT_ERR_ATTR_NOT_LONG            0x0b
+#define ATT_ERR_INSUFFICIENT_KEY_SIZE    0x0c
+#define ATT_ERR_INVALID_VALUE_SIZE       0x0d
+#define ATT_ERR_UNLIKELY                 0x0e
+#define ATT_ERR_INSUFFICIENT_ENCRYPT     0x0f
+#define ATT_ERR_UNSUPPORTED_GRP_TYPE     0x10
+#define ATT_ERR_INSUFFICIENT_RESOURCES   0x11
+
 
 ///////////////////////////lib provided APIs//////////////////////////////////////
 
@@ -53,6 +72,12 @@ void radio_standby(void);
 //Parameters: xoib:0~f, xocc:0
 //return: None
 void radio_setXtal(unsigned char xoib, unsigned char xocc);
+
+//Function: radio_setRxGain
+//this function is to config the params of RX
+//Parameters: lna_gain:0,5,6,7, preambe_th: 0x20 when lna_gain=0, 0x38 when lna_gain=5,6,7
+//return: 0-input param error, 1-ok
+unsigned char radio_setRxGain(unsigned char lna_gain, unsigned char preamble_th);
 
 //Function: ble_run
 //Parameters: interv_adv - advertise packet interval, unit 0.625ms
@@ -199,7 +224,6 @@ void test_carrier(unsigned char freq, unsigned char txpwr);
 
 void SetFixAdvChannel(unsigned char isFixCh37Flag);
 
-//void set_mg_ble_dbg_flag(unsigned char EnableFlag);
 //unsigned char* GetMgBleStateInfo(int* StateInfoSize/*Output*/);
 
 
