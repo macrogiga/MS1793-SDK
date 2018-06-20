@@ -93,9 +93,7 @@ void EXTI4_15_IRQHandler(void)
     //EXTI_ClearITPendingBit(EXTI_Line11);
     EXTI_ClearITPendingBit(EXTI_Line12);
 
-    if(1 == SleepStatus){ //sleep
-        SysClk8to48();
-    }else if(2 == SleepStatus){ //stop
+    if(2 == SleepStatus){ //stop
         RCC->CR|=RCC_CR_HSION;
         RCC->CR |= RCC_CR_PLLON;
         RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;

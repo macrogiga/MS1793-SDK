@@ -341,10 +341,9 @@ void McuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
         (RxTimeout < SysTick_Count))
     {
         if(SleepStop == 1){//sleep
-            //SysClk48to8();
             SCB->SCR &= 0xfb;
             __WFE();
-            //SysClk8to48();
+
         }else{ //stop
             SysClk48to8();
             SCB->SCR |= 0x4;
@@ -370,7 +369,6 @@ void IrqMcuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
     {
         if(SleepStop == 1){//sleep
             SleepStatus = 1;
-            //SysClk48to8();
             SCB->SCR &= 0xfb;
             __WFE();
         }else{ //stop

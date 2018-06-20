@@ -277,11 +277,9 @@ void McuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
         Sys_Standby();
     }else{ //enter SLEEP/STOP to save power
 #if 0 //SLEEP
-        SysClk48to8();
         SCB->SCR &= 0xFB;
         __WFE();
         
-        SysClk8to48();
 #else //STOP
         SysClk48to8();
         SCB->SCR |= 0x4;
@@ -309,11 +307,9 @@ void IrqMcuGotoSleepAndWakeup(void)
         }else{ //enter SLEEP/STOP to save power
 #if 0 //SLEEP
             SleepStatus = 1;
-            SysClk48to8();
             SCB->SCR &= 0xFB;
             __WFE();
             
-            //SysClk8to48();
 #else //STOP
             SleepStatus = 2;
             SysClk48to8();
