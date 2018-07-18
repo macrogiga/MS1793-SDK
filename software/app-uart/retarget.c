@@ -10,9 +10,7 @@ extern void ChangeBaudRate(void);
 
 #define MS1793_UART_VERSION_STRING  "IND:Ver1.0\n"
 
-//#define FLASH_DEVICE_ADDR 0xa8
-//#define DMA1_Channel6  ((DMA_Channel_TypeDef *) DMA1_Channel6_BASE)
-//#define DMA1_Channel6_BASE    (AHBPERIPH_BASE + 0x006C)
+
 
 #define MAX_SIZE 200
 u8 txBuf[MAX_SIZE], rxBuf[MAX_SIZE];
@@ -419,7 +417,7 @@ void CheckAtCmdInfo(void) //main entrance
             AtCmdBufDataSize = 0;//I just reset the position, drop the cmd
         }
         
-        if((rxBuf[comrxbuf_rd_pos] == 0x0a) || (rxBuf[comrxbuf_rd_pos] == 0x0d))        
+        if((RxTimeout < SysTick_Count)||(rxBuf[comrxbuf_rd_pos] == 0x0a) || (rxBuf[comrxbuf_rd_pos] == 0x0d))        
         {
             if(AtCmdBufDataSize == 1)
             {
@@ -467,13 +465,15 @@ void CheckComPortInData(void) //at cmd NOT supported
         }
     }
 }
-static u16 counter = 0;
+
 void UsrProcCallback(void) //porting api
 {
     u16 conn_interv = 0;
+    static u16 counter = 0; 
     
     IWDG_ReloadCounter();
-    
+
+#if 0
     if(GetConnectedStatus()){
         counter ++;
         if(counter == 200){
@@ -486,7 +486,8 @@ void UsrProcCallback(void) //porting api
     }else{
         counter = 0;
     }
-    
+#endif
+
 #ifdef USE_AT_CMD
     CheckAtCmdInfo();
 #else //AT CMD not supported

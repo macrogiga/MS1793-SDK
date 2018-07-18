@@ -34,11 +34,6 @@ extern void ChangeBaudRate(void);
 extern void moduleOutData(u8*data, u8 len);
 
 extern u32 BaudRate;
-//u16 NotifyCont=0;
-//u8 CanNotifyFlag = 0;
-//extern unsigned char SleepStop;
-//#define MAX_SIZE 100
-//#define NOTIFYSIZE 20
 
 
 /// Characteristic Properties Bit

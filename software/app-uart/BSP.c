@@ -10,7 +10,7 @@ extern volatile unsigned int SysTick_Count;
 extern unsigned int RxTimeout;
 extern unsigned int TxTimeout;
 
-unsigned char SleepStop = 0x00; //01-sleep, 02-stop
+unsigned char SleepStop = 0x01; //01-sleep, 02-stop
 unsigned char SleepStatus = 0;
 /********************************************************************************************************
 **函数信息 ：SPIM_TXEn(SPI_TypeDef* SPIx)                     
@@ -76,7 +76,7 @@ void SPIM_Init(SPI_TypeDef* SPIx,unsigned short spi_baud_div)
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);  //SPI1 clk enable
 		SPI_CS_Disable;
 		
-		RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB| RCC_AHBPeriph_GPIOD, ENABLE);
+		RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB | RCC_AHBPeriph_GPIOD, ENABLE);
 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource5, GPIO_AF_0);
 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource4, GPIO_AF_0);
 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource3, GPIO_AF_0);
@@ -103,7 +103,6 @@ void SPIM_Init(SPI_TypeDef* SPIx,unsigned short spi_baud_div)
 		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING; //上拉输入   
 		GPIO_Init(GPIOB, &GPIO_InitStructure);
-		
 	}
 	
 	
@@ -240,11 +239,6 @@ void ChangeBaudRate(void)
 	UART_Cmd(UART1, ENABLE);
 }
 
-void SysTick_Configuration(void)
-{
-    SysTick_Config(48000);
-}
-
 
 void LED_ONOFF(unsigned char onFlag)//module indicator,GPA8
 {
@@ -262,8 +256,7 @@ void BSP_Init(void)
 	GPIO_InitTypeDef GPIO_InitStructure;
 	
 	SystemClk_HSEInit();
-	
-	SysTick_Configuration();
+	SysTick_Config(48000);
     
 	//SPIM_Init(SPI1,0x08); //6Mhz
     SPIM_Init(SPI1,0x06); //8Mhz
@@ -303,8 +296,6 @@ void BSP_Init(void)
 	NVIC_Init(&NVIC_InitStructure);
     NVIC_SetPriority (EXTI4_15_IRQn, (1<<__NVIC_PRIO_BITS) - 1); 
     
-//	PWR->CR = PWR->CR & 0xfffd; //PDDS = 0;enter stop mode
-//	SCB->SCR |= 0x4;
 }
 
 
@@ -333,6 +324,20 @@ char IsIrqEnabled(void) //porting api
     return (!(GPIO_ReadInputData(GPIOA) & 0x1000)); //GPA12
 }
 
+
+void SysClk8M(void)
+{
+    __ASM volatile("cpsid i");
+    RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);//selecting PLL clock as sys clock
+    
+    while (RCC_GetSYSCLKSource() != 0x0)
+    {}
+
+    RCC->CR &=~(RCC_CR_PLLON);  //clear PLL
+    SysTick_Config(8000);
+    __ASM volatile("cpsie i");
+}
+
 void McuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
 {
 #ifdef USE_UART
@@ -345,7 +350,7 @@ void McuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
             __WFE();
 
         }else{ //stop
-            SysClk48to8();
+            SysClk8M();
             SCB->SCR |= 0x4;
             __WFI();
             
@@ -373,7 +378,7 @@ void IrqMcuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
             __WFE();
         }else{ //stop
             SleepStatus = 2;
-            SysClk48to8();
+            SysClk8M();
             SCB->SCR |= 0x4;
             __WFI();
         }
@@ -384,40 +389,19 @@ void IrqMcuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
 //////DO NOT REMOVE, used in ble lib///////
 void SysClk8to48(void)
 {
-    SystemClk_HSEInit();
-    SysTick_Config(48000);
+
 }
 void SysClk48to8(void)
 {
-    __ASM volatile("cpsid i");
-    RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);//selecting PLL clock as sys clock
-    
-    while (RCC_GetSYSCLKSource() != 0x0)
-    {}
 
-    RCC->CR &=~(RCC_CR_PLLON);  //clear PLL
-    SysTick_Config(8000);
-    __ASM volatile("cpsie i");
 }
 
-static char dis_int_count = 0;
 void DisableEnvINT(void)
 {
-    //to disable int
-    __ASM volatile("cpsid i");
-    
-    dis_int_count ++;
 }
 
 void EnableEnvINT(void)
 {
-    //to enable/recover int
-    dis_int_count --;    
-    if(dis_int_count<=0) //protection purpose
-    {
-        dis_int_count = 0; //reset
-        __ASM volatile("cpsie i");
-    }
 }
 
 //api provide in blelib
@@ -425,4 +409,3 @@ void EnableEnvINT(void)
 void UpdateLEDValueAll(void) //porting function
 {
 }
-
