@@ -273,15 +273,18 @@ void McuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
         RCC_LSICmd(DISABLE);  //in STANDBY iwdg will cause reset
         
         radio_standby();
-        
         Sys_Standby();
     }else{ //enter SLEEP/STOP to save power
+        if(SleepStatus) return;
 #if 0 //SLEEP
+        SysClk48to8();
+        SleepStatus = 1;
         SCB->SCR &= 0xFB;
         __WFE();
-        
+        SysClk8to48();
 #else //STOP
         SysClk48to8();
+        SleepStatus = 2;
         SCB->SCR |= 0x4;
         __WFI();
         
@@ -305,21 +308,19 @@ void IrqMcuGotoSleepAndWakeup(void)
             radio_standby();
             Sys_Standby();
         }else{ //enter SLEEP/STOP to save power
+            if(SleepStatus) return;
 #if 0 //SLEEP
+            SysClk48to8();
             SleepStatus = 1;
             SCB->SCR &= 0xFB;
             __WFE();
             
 #else //STOP
-            SleepStatus = 2;
             SysClk48to8();
+            SleepStatus = 2;
             SCB->SCR |= 0x4;
             __WFI();
             
-            //RCC->CR|=RCC_CR_HSION;
-            //RCC->CR |= RCC_CR_PLLON;
-            //RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;
-            //SysTick_Config(48000);
 #endif
         }
     }
