@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2017 Macrogiga Electronics Co., Ltd.
+    Copyright (c) 2018 Macrogiga Electronics Co., Ltd.
 
     Permission is hereby granted, free of charge, to any person 
     obtaining a copy of this software and associated documentation 
@@ -21,13 +21,14 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
     DEALINGS IN THE SOFTWARE.
 */
+/*lib release: v3.3.6*/
 
 #ifndef _MG_API_H_
 #define _MG_API_H_
 
 //TX power
-#define TXPWR_0DBM 0x43
 #define TXPWR_3DBM 0x48
+#define TXPWR_0DBM 0x43
 #define	TXPWR__3DBM	 64
 #define	TXPWR__6DBM	 61
 #define	TXPWR__8DBM	 58
@@ -66,6 +67,18 @@ void radio_initBle(unsigned char txpwr, unsigned char** addr/*out*/);  //init bl
 //Parameters: none
 //return: None
 void radio_standby(void);
+
+//Function: radio_resume
+//this function is to recover rf from standby mode
+//Parameters: none
+//return: None
+void radio_resume(void);
+    
+//Function: radio_fixSPI
+//this function is to set rf spi to H/L after enter standby
+//Parameters: cs/sck/mosi: 0(L), 2(H)
+//return: None
+void radio_fixSPI(unsigned char cs,unsigned char sck,unsigned char mosi);
 
 //Function: radio_setXtal
 //this function is to config the params of xtal
