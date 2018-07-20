@@ -160,11 +160,6 @@ void SystemClk_HSEInit(void)
 	{}
 }
 
-void SysTick_Configuration(void)
-{
-    SysTick_Config(48000);
-}
-
 void LED_ONOFF(unsigned char onFlag)//module indicator,GPA8
 {
     if(onFlag){
@@ -190,7 +185,7 @@ void BSP_Init(void)
 	GPIO_InitTypeDef GPIO_InitStructure;
 	
 	SystemClk_HSEInit();
-	SysTick_Configuration();
+    SysTick_Config(48000);
     
 	//SPIM_Init(SPI1,0x08); //6Mhz
     SPIM_Init(SPI1,0x06); //8Mhz
@@ -275,7 +270,6 @@ void McuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
         radio_standby();
         Sys_Standby();
     }else{ //enter SLEEP/STOP to save power
-        if(SleepStatus) return;
 #if 0 //SLEEP
         SysClk48to8();
         SleepStatus = 1;
@@ -308,7 +302,6 @@ void IrqMcuGotoSleepAndWakeup(void)
             radio_standby();
             Sys_Standby();
         }else{ //enter SLEEP/STOP to save power
-            if(SleepStatus) return;
 #if 0 //SLEEP
             SysClk48to8();
             SleepStatus = 1;

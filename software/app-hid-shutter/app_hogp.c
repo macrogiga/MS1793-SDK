@@ -132,7 +132,7 @@ const BLE_CHAR AttCharList[] = {
 };
 
 const BLE_UUID128 AttUuid128List[] = {
-    {0}, //empty
+    {{0}}, //empty
 };
 
 u8 GetCharListDim(void)
@@ -534,6 +534,8 @@ unsigned char aes_encrypt_HW(unsigned char *_data, unsigned char *_key)
 
 #else                     //HW AES supported
 
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_AES, ENABLE); //AES CLK enable
+    
 	AES->CR = 0x00;	
 	AES->CR|=0x03<<20;
 
@@ -590,6 +592,8 @@ unsigned char aes_encrypt_HW(unsigned char *_data, unsigned char *_key)
     _data[2] = tmp >>  8;
     _data[3] = tmp;    
 
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_AES, DISABLE); //AES CLK disable
+
     return 1;// HW supported value
 #endif    
 }
@@ -597,17 +601,6 @@ unsigned char aes_encrypt_HW(unsigned char *_data, unsigned char *_key)
 
 void ConnectStausUpdate(unsigned char IsConnectedFlag) //porting api
 {
-    //enable/disable ase clock if any
-#ifdef AES_HW_SUPPORT
-    if(IsConnectedFlag)
-    {
-        RCC_AHBPeriphClockCmd(RCC_AHBPeriph_AES, ENABLE); //AES CLK enable
-    }
-    else
-    {
-        RCC_AHBPeriphClockCmd(RCC_AHBPeriph_AES, DISABLE); //AES CLK enable
-    }
-#endif    
     
     if(!IsConnectedFlag)
     CanNotifyFlag = IsConnectedFlag; //disconnected, so can NOT notify data
