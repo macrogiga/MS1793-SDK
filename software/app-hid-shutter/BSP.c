@@ -327,6 +327,7 @@ void SysClk8to48(void)
 }
 void SysClk48to8(void)
 {
+    __ASM volatile("cpsid i");
     RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);//selecting PLL clock as sys clock
     
     while (RCC_GetSYSCLKSource() != 0x0)
@@ -334,6 +335,7 @@ void SysClk48to8(void)
     
     RCC->CR &=~(RCC_CR_PLLON);  //clear PLL
     SysTick_Config(8000);
+    __ASM volatile("cpsie i");
 }
 
 static char dis_int_count = 0;
