@@ -8,8 +8,9 @@
 /** @addtogroup Template_Project
   * @{
   */
-#include "HAL_conf.h"
-#include "mg_api.h"
+ #include "HAL_conf.h"
+ #include "mg_api.h"
+ #include "BSP.h"
 
 
 extern unsigned char SleepStatus;
@@ -88,12 +89,15 @@ void EXTI0_1_IRQHandler(void)
 {
     EXTI_ClearITPendingBit(EXTI_Line0); 
 }
+
+#ifdef MS1797_EVBOARD
+void EXTI2_3_IRQHandler(void)
+#else
 void EXTI4_15_IRQHandler(void)
+#endif
 {
-    /*EXTI_ClearITPendingBit(EXTI_Line10);*/
-    EXTI_ClearITPendingBit(EXTI_Line11);
-    EXTI_ClearITPendingBit(EXTI_Line12); 
-    
+    EXTI_ClearITPendingBit(IRQ_EXTI);
+
     if(2 == SleepStatus){ //stop
         RCC->CR|=RCC_CR_HSION;
         RCC->CR |= RCC_CR_PLLON;
