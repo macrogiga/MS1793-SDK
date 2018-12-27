@@ -3110,44 +3110,6 @@ void TIM_SelectHallSensor(TIM_TypeDef* TIMx, FunctionalState NewState)
 * @}
 */
 
-/** @defgroup TIM_Group9 Specific remapping management function
-*  @brief   Specific remapping management function
-*
-@verbatim
-===============================================================================
-##### Specific remapping management function #####
-===============================================================================
-
-@endverbatim
-* @{
-*/
-/**
-* @brief  Configures the TIM14 Remapping input Capabilities.
-* @param  TIMx: where x can be 14 to select the TIM peripheral.
-* @param  TIM_Remap: specifies the TIM input reampping source.
-*          This parameter can be one of the following values:
-*            @arg TIM14_GPIO: TIM14 Channel 1 is connected to GPIO.
-*            @arg TIM14_RTC_CLK: TIM14 Channel 1 is connected to RTC input clock.
-*                                RTC input clock can be LSE, LSI or HSE/div128.
-*            @arg TIM14_HSE_DIV32: TIM14 Channel 1 is connected to HSE/32 clock.  
-*            @arg TIM14_MCO: TIM14 Channel 1 is connected to MCO clock.  
-*                            MCO clock can be HSI14, SYSCLK, HSI, HSE or PLL/2.  
-* @retval None
-*/
-void TIM_RemapConfig(TIM_TypeDef* TIMx, uint16_t TIM_Remap)
-{
-  /* Check the parameters */
-  assert_param(IS_TIM_LIST11_PERIPH(TIMx));
-  assert_param(IS_TIM_REMAP(TIM_Remap));
-  
-  /* Set the Timer remapping configuration */
-  TIMx->OR =  TIM_Remap;
-}
-
-/**
-* @}
-*/
-
 /**
 * @brief  Configure the TI1 as Input.
 * @param  TIMx: where x can be 1, 2, 3, 14, 15, 16 or 17 to select the TIM peripheral.

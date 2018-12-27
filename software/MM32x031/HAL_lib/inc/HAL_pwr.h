@@ -50,23 +50,23 @@
 * @{
 */ 
 
-#define PWR_PVDLevel_2V6          ((uint32_t)0x00000000)
-#define PWR_PVDLevel_2V8          ((uint32_t)0x00000200)
-#define PWR_PVDLevel_3V0          ((uint32_t)0x00000400)
-#define PWR_PVDLevel_3V2          ((uint32_t)0x00000600)
-#define PWR_PVDLevel_3V4          ((uint32_t)0x00000800)
-#define PWR_PVDLevel_3V6          ((uint32_t)0x00000A00)
-#define PWR_PVDLevel_3V8          ((uint32_t)0x00000C00)
-#define PWR_PVDLevel_4V0          ((uint32_t)0x00000E00)
+#define PWR_PVDLevel_1V8          ((uint32_t)0x00000000)
+#define PWR_PVDLevel_2V1          ((uint32_t)0x00000200)
+#define PWR_PVDLevel_2V4          ((uint32_t)0x00000400)
+#define PWR_PVDLevel_2V7          ((uint32_t)0x00000600)
+#define PWR_PVDLevel_3V0          ((uint32_t)0x00000800)
+#define PWR_PVDLevel_3V3          ((uint32_t)0x00000A00)
+#define PWR_PVDLevel_3V6          ((uint32_t)0x00000C00)
+#define PWR_PVDLevel_3V9          ((uint32_t)0x00000E00)
 #define PWR_PVDLevel_4V2          ((uint32_t)0x00001000)
-#define PWR_PVDLevel_4V4          ((uint32_t)0x00001200)
-#define PWR_PVDLevel_4V6          ((uint32_t)0x00001400)
-#define IS_PWR_PVD_LEVEL(LEVEL) (((LEVEL) == PWR_PVDLevel_2V6) || ((LEVEL) == PWR_PVDLevel_2V8)|| \
-((LEVEL) == PWR_PVDLevel_3V0) || ((LEVEL) == PWR_PVDLevel_3V2)|| \
-  ((LEVEL) == PWR_PVDLevel_3V4) || ((LEVEL) == PWR_PVDLevel_3V6)|| \
-    ((LEVEL) == PWR_PVDLevel_3V8) || ((LEVEL) == PWR_PVDLevel_4V0)|| \
-      ((LEVEL) == PWR_PVDLevel_4V2) || ((LEVEL) == PWR_PVDLevel_4V4)|| \
-        ((LEVEL) == PWR_PVDLevel_4V6))
+#define PWR_PVDLevel_4V5          ((uint32_t)0x00001200)
+#define PWR_PVDLevel_4V8          ((uint32_t)0x00001400)
+#define IS_PWR_PVD_LEVEL(LEVEL) (((LEVEL) == PWR_PVDLevel_1V8) || ((LEVEL) == PWR_PVDLevel_2V1)|| \
+((LEVEL) == PWR_PVDLevel_2V4) || ((LEVEL) == PWR_PVDLevel_2V7)|| \
+    ((LEVEL) == PWR_PVDLevel_3V0) || ((LEVEL) == PWR_PVDLevel_3V3)|| \
+        ((LEVEL) == PWR_PVDLevel_3V6) || ((LEVEL) == PWR_PVDLevel_3V9)|| \
+            ((LEVEL) == PWR_PVDLevel_4V2) || ((LEVEL) == PWR_PVDLevel_4V5)|| \
+                ((LEVEL) == PWR_PVDLevel_4V8))
 /**
 * @}
 */

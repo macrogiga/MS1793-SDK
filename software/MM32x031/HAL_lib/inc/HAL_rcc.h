@@ -322,6 +322,8 @@ typedef struct
 #endif
 
 #define RCC_APB1Periph_WWDG              ((uint32_t)0x00000800)
+#define RCC_APB1Periph_SPI2              ((uint32_t)0x00004000)
+#define RCC_APB1Periph_UART2             ((uint32_t)0x00020000)
 #define RCC_APB1Periph_I2C1              ((uint32_t)0x00200000)
 
 #define RCC_APB1Periph_PWR               ((uint32_t)0x10000000)

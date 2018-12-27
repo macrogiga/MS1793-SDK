@@ -99,11 +99,10 @@ Timeout value
 
 /*!< Interrupt Number Definition */
 
-#ifdef MZ305
 typedef enum IRQn
 {
   /******  Cortex-M0 Processor Exceptions Numbers ***************************************************/
-  NonMaskableInt_IRQn         = -14,    /*!< 2 Non Maskable Interrupt                             */
+  NonMaskableInt_IRQn         = -14,    /*!< 2 Non Maskable Interrupt                                */
   HardFault_IRQn              = -13,    /*!< 3 Cortex-M0 Hard Fault Interrupt                        */
   SVC_IRQn                    = -5,     /*!< 11 Cortex-M0 SV Call Interrupt                          */
   PendSV_IRQn                 = -2,     /*!< 14 Cortex-M0 Pend SV Interrupt                          */
@@ -111,88 +110,35 @@ typedef enum IRQn
   
   WWDG_IRQn                   = 0,      /*!< Window WatchDog Interrupt                               */
   PVD_IRQn                    = 1,      /*!< PVD through EXTI Line detect Interrupt                  */
-//  RTC_IRQn                    = 2,      /*!< RTC through EXTI Line Interrupt                         */
+  PWM_CTRL_IRQn               = 2,      /*!< Commutation and Input Interrupt                         */
   FLASH_IRQn                  = 3,      /*!< FLASH Interrupt                                         */
   RCC_IRQn                    = 4,      /*!< RCC Interrupt                                           */
   EXTI0_1_IRQn                = 5,      /*!< EXTI Line 0 and 1 Interrupts                            */
   EXTI2_3_IRQn                = 6,      /*!< EXTI Line 2 and 3 Interrupts                            */
   EXTI4_15_IRQn               = 7,      /*!< EXTI Line 4 to 15 Interrupts                            */
-  //   RTC_ALARM_USB_WAKEUP_IRQn   = 8,      /*!< RTC Alarm Interrupt and USB wake up Interuupt           */
+  HWDIV_IRQn                  = 8,      /*!< HWDIV Global Interuupt           */
   DMA1_Channel1_IRQn          = 9,      /*!< DMA1 Channel 1 Interrupt                                */
   DMA1_Channel2_3_IRQn        = 10,     /*!< DMA1 Channel 2 and Channel 3 Interrupts                 */
   DMA1_Channel4_5_IRQn        = 11,     /*!< DMA1 Channel 4 and Channel 5 Interrupts                 */
-  ADC1_IRQn          = 12,              /*!< ADC1Interrupts                        */
-  
+  ADC1_IRQn                   = 12,     /*!< ADC1 Global Interrupts                        */
   TIM1_BRK_UP_TRG_COM_IRQn    = 13,     /*!< TIM1 Break, Update, Trigger and Commutation Interrupts  */
   TIM1_CC_IRQn                = 14,     /*!< TIM1 Capture Compare Interrupt                          */
   TIM2_IRQn                   = 15,     /*!< TIM2 Interrupt                                          */
   TIM3_IRQn                   = 16,     /*!< TIM3 Interrupt                                          */
-  
-//  TIM6_DAC_IRQn               = 17,     /*!< TIM6 and DAC Interrupts                                 */
-//  TIM7_IRQn                   = 18,     /*!< TIM7 Interrupts                                               */
-  TIM14_IRQn                  = 19,     /*!< TIM14 Interrupt                                               */
-//  TIM15_IRQn                  = 20,     /*!< TIM15 Interrupt                                               */
-  TIM16_IRQn                  = 21,     /*!< TIM16 Interrupt                                               */
-  TIM17_IRQn                  = 22,     /*!< TIM17 Interrupt                                               */
-  I2C1_IRQn                = 23,     /*!< I2C1 Interrupt                                          */
-  
+  TIM8_BRK_UP_TRG_COM_IRQn    = 17,     /*!< TIM8 Brake, Update, Trigger and Commutation Interrupts                                 */
+  TIM8_CC_IRQn                = 18,     /*!< TIM8 Capture Compare Interrupt                                                */
+  TIM14_IRQn                  = 19,     /*!< TIM14 Interrupt                                         */
+  ADC2_IRQn                   = 20,     /*!< ADC2 Interrupt                                          */
+  TIM16_IRQn                  = 21,     /*!< TIM16 Interrupt                                         */
+  TIM17_IRQn                  = 22,     /*!< TIM17 Interrupt                                         */
+  I2C1_IRQn                   = 23,     /*!< I2C1 Interrupt                                          */
+  COMP1_2_3_4_5_IRQn          = 24,     /*!< Comparators Interrupt                                   */
   SPI1_IRQn                   = 25,     /*!< SPI1 Interrupt                                          */
-  
-  UART1_IRQn                 = 27,     /*!< UART1 Interrupt                                        */
-
-//  UART2_IRQn                 = 28,     /*!< UART2 Interrupt                                        */
-	AES_IRQn                 = 29,     /*!<AES Interrupt                                        */
-	USB_IRQn                 = 31,     /*!<AES Interrupt                                        */
+  SPI2_IRQn                   = 26,     /*!< SPI2 Interrupt                                          */
+  UART1_IRQn                  = 27,     /*!< UART1 Interrupt                                         */
+  UART2_IRQn                  = 28,     /*!< UART2 Interrupt                                         */
   
 } IRQn_Type;
-
-#else
-
-typedef enum IRQn
-{
-  /******  Cortex-M0 Processor Exceptions Numbers ***************************************************/
-  NonMaskableInt_IRQn         = -14,    /*!< 2 Non Maskable Interrupt                             */
-  HardFault_IRQn              = -13,    /*!< 3 Cortex-M0 Hard Fault Interrupt                        */
-  SVC_IRQn                    = -5,     /*!< 11 Cortex-M0 SV Call Interrupt                          */
-  PendSV_IRQn                 = -2,     /*!< 14 Cortex-M0 Pend SV Interrupt                          */
-  SysTick_IRQn                = -1,     /*!< 15 Cortex-M0 System Tick Interrupt                      */ 
-  
-  WWDG_IRQn                   = 0,      /*!< Window WatchDog Interrupt                               */
-  PVD_IRQn                    = 1,      /*!< PVD through EXTI Line detect Interrupt                  */
-  RTC_IRQn                    = 2,      /*!< RTC through EXTI Line Interrupt                         */
-  FLASH_IRQn                  = 3,      /*!< FLASH Interrupt                                         */
-  RCC_IRQn                    = 4,      /*!< RCC Interrupt                                           */
-  EXTI0_1_IRQn                = 5,      /*!< EXTI Line 0 and 1 Interrupts                            */
-  EXTI2_3_IRQn                = 6,      /*!< EXTI Line 2 and 3 Interrupts                            */
-  EXTI4_15_IRQn               = 7,      /*!< EXTI Line 4 to 15 Interrupts                            */
-  //   RTC_ALARM_USB_WAKEUP_IRQn   = 8,      /*!< RTC Alarm Interrupt and USB wake up Interuupt           */
-  DMA1_Channel1_IRQn          = 9,      /*!< DMA1 Channel 1 Interrupt                                */
-  DMA1_Channel2_3_IRQn        = 10,     /*!< DMA1 Channel 2 and Channel 3 Interrupts                 */
-  DMA1_Channel4_5_IRQn        = 11,     /*!< DMA1 Channel 4 and Channel 5 Interrupts                 */
-  ADC1_COMP_IRQn          = 12,     /*!< ADC1, COMP1 and COMP2 Interrupts                        */
-  
-  TIM1_BRK_UP_TRG_COM_IRQn    = 13,     /*!< TIM1 Break, Update, Trigger and Commutation Interrupts  */
-  TIM1_CC_IRQn                = 14,     /*!< TIM1 Capture Compare Interrupt                          */
-  TIM2_IRQn                   = 15,     /*!< TIM2 Interrupt                                          */
-  TIM3_IRQn                   = 16,     /*!< TIM3 Interrupt                                          */
-  
-  TIM6_DAC_IRQn               = 17,     /*!< TIM6 and DAC Interrupts                                 */
-  TIM7_IRQn                   = 18,     /*!< TIM7 Interrupts                                               */
-  TIM14_IRQn                  = 19,     /*!< TIM14 Interrupt                                               */
-  TIM15_IRQn                  = 20,     /*!< TIM15 Interrupt                                               */
-  TIM16_IRQn                  = 21,     /*!< TIM16 Interrupt                                               */
-  TIM17_IRQn                  = 22,     /*!< TIM17 Interrupt                                               */
-  I2C1_IRQn                = 23,     /*!< I2C1 Interrupt                                          */
-  
-  SPI1_IRQn                   = 25,     /*!< SPI1 Interrupt                                          */
-  
-  UART1_IRQn                 = 27,     /*!< UART1 Interrupt                                        */
-
-  UART2_IRQn                 = 28,     /*!< UART2 Interrupt                                        */
-  
-} IRQn_Type;
-
-#endif
 
 
 
@@ -596,48 +542,26 @@ typedef struct
 
 typedef struct
 {
-  __IO uint16_t CR1;
-  uint16_t  RESERVED0;
-  __IO uint16_t CR2;
-  uint16_t  RESERVED1;
-  __IO uint16_t SMCR;
-  uint16_t  RESERVED2;
-  __IO uint16_t DIER;
-  uint16_t  RESERVED3;
-  __IO uint16_t SR;
-  uint16_t  RESERVED4;
-  __IO uint16_t EGR;
-  uint16_t  RESERVED5;
-  __IO uint16_t CCMR1;
-  uint16_t  RESERVED6;
-  __IO uint16_t CCMR2;
-  uint16_t  RESERVED7;
-  __IO uint16_t CCER;
-  uint16_t  RESERVED8;
-  __IO uint16_t CNT;
-  uint16_t  RESERVED9;
-  __IO uint16_t PSC;
-  uint16_t  RESERVED10;
-  __IO uint16_t ARR;
-  uint16_t  RESERVED11;
-  __IO uint16_t RCR;
-  uint16_t  RESERVED12;
-  __IO uint16_t CCR1;
-  uint16_t  RESERVED13;
-  __IO uint16_t CCR2;
-  uint16_t  RESERVED14;
-  __IO uint16_t CCR3;
-  uint16_t  RESERVED15;
-  __IO uint16_t CCR4;
-  uint16_t  RESERVED16;
-  __IO uint16_t BDTR;
-  uint16_t  RESERVED17;
-  __IO uint16_t DCR;
-  uint16_t  RESERVED18;
-  __IO uint16_t DMAR;
-  uint16_t  RESERVED19;
-  __IO uint16_t OR;              /*!< TIM option register,                         Address offset: 0x50 */
-  uint16_t      RESERVED20;      /*!< Reserved,                                       0x52 */
+  __IO uint32_t CR1;
+  __IO uint32_t CR2;
+  __IO uint32_t SMCR;
+  __IO uint32_t DIER;
+  __IO uint32_t SR;
+  __IO uint32_t EGR;
+  __IO uint32_t CCMR1;
+  __IO uint32_t CCMR2;
+  __IO uint32_t CCER;
+  __IO uint32_t CNT;
+  __IO uint32_t PSC;
+  __IO uint32_t ARR;
+  __IO uint32_t RCR;
+  __IO uint32_t CCR1;
+  __IO uint32_t CCR2;
+  __IO uint32_t CCR3;
+  __IO uint32_t CCR4;
+  __IO uint32_t BDTR;
+  __IO uint32_t DCR;
+  __IO uint32_t DMAR;
 } TIM_TypeDef;
 
 /** 
@@ -938,13 +862,17 @@ typedef struct
 
 #define TIM2_BASE             (APB1PERIPH_BASE + 0x0000)
 #define TIM3_BASE             (APB1PERIPH_BASE + 0x0400)
+#define BKP_BASE              (APB1PERIPH_BASE + 0x2800)
 #define WWDG_BASE             (APB1PERIPH_BASE + 0x2C00)
 #define IWDG_BASE             (APB1PERIPH_BASE + 0x3000)
+#define SPI2_BASE             (APB1PERIPH_BASE + 0x3800)
+#define UART2_BASE            (APB1PERIPH_BASE + 0x4400)
 #define I2C1_BASE             (APB1PERIPH_BASE + 0x5400)
 #define PWR_BASE              (APB1PERIPH_BASE + 0x7000)
-#define BKP_BASE              (APB1PERIPH_BASE + 0x2800)
+
 #define SYSCFG_BASE           (APB2PERIPH_BASE + 0x0000)
 #define EXTI_BASE             (APB2PERIPH_BASE + 0x0400)
+#define TIM8_BASE             (APB2PERIPH_BASE + 0x0800)
 
 #ifdef MZ305
 #define GPIOA_BASE            (0x48000000)
@@ -1008,9 +936,12 @@ typedef struct
 #define TIM17               ((TIM_TypeDef *) TIM17_BASE)
 #define WWDG                ((WWDG_TypeDef *) WWDG_BASE)
 #define IWDG                ((IWDG_TypeDef *) IWDG_BASE)
+#define SPI2                ((SPI_TypeDef *) SPI2_BASE)
+#define UART2               ((UART_TypeDef *) UART2_BASE)
 #define I2C1                ((I2C_TypeDef *) I2C1_BASE)
 #define PWR                 ((PWR_TypeDef *) PWR_BASE)
 #define EXTI                ((EXTI_TypeDef *) EXTI_BASE)
+#define TIM8                ((TIM_TypeDef *) TIM8_BASE)
 #define GPIOA               ((GPIO_TypeDef *) GPIOA_BASE)
 #define GPIOB               ((GPIO_TypeDef *) GPIOB_BASE)
 #define GPIOC               ((GPIO_TypeDef *) GPIOC_BASE)

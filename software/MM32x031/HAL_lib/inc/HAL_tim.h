@@ -47,17 +47,17 @@ extern "C" {
   
   typedef struct
   {
-    uint16_t TIM_Prescaler;         /*!< Specifies the prescaler value used to divide the TIM clock.
+    uint32_t TIM_Prescaler;         /*!< Specifies the prescaler value used to divide the TIM clock.
     This parameter can be a number between 0x0000 and 0xFFFF */
     
-    uint16_t TIM_CounterMode;       /*!< Specifies the counter mode.
+    uint32_t TIM_CounterMode;       /*!< Specifies the counter mode.
     This parameter can be a value of @ref TIM_Counter_Mode */
     
-  uint16_t TIM_Period;
+  uint32_t TIM_Period;
     /*!< Auto-Reload Register at the next update event.
     This parameter must be a number between 0x0000 and 0xFFFF.  */ 
     
-    uint16_t TIM_ClockDivision;     /*!< Specifies the clock division.
+    uint32_t TIM_ClockDivision;     /*!< Specifies the clock division.
     This parameter can be a value of @ref TIM_Clock_Division_CKD */
     
     uint8_t TIM_RepetitionCounter;  /*!< Specifies the repetition counter value. Each time the RCR downcounter
