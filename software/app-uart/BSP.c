@@ -252,20 +252,20 @@ void UartInit(UART_TypeDef* UARTx)
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
     //CTS
-    GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_2;
+    GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_4;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
-    GPIO_Init(GPIOD, &GPIO_InitStructure);
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
 
     GPIO_ResetBits(GPIOA, GPIO_Pin_11);
 }
 
 void ChangeBaudRate(void)
 {
-	UART_Cmd(UART1, DISABLE);
-	UART_InitStructure.UART_BaudRate = BaudRate;//串口波特率
-	UART_Init(UART1, &UART_InitStructure); //初始化串口1
-	UART_Cmd(UART1, ENABLE);
+    UART_Cmd(UART1, DISABLE);
+    UART_InitStructure.UART_BaudRate = BaudRate;//串口波特率
+    UART_Init(UART1, &UART_InitStructure); //初始化串口1
+    UART_Cmd(UART1, ENABLE);
 }
 
 
@@ -280,12 +280,12 @@ void LED_ONOFF(unsigned char onFlag)//module indicator,GPA8
 
 void BSP_Init(void)
 {
-	NVIC_InitTypeDef NVIC_InitStructure;
-	EXTI_InitTypeDef EXTI_InitStructure;
-	GPIO_InitTypeDef GPIO_InitStructure;
-	
-	SystemClk_HSEInit();
-	SysTick_Config(48000);
+    NVIC_InitTypeDef NVIC_InitStructure;
+    EXTI_InitTypeDef EXTI_InitStructure;
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    SystemClk_HSEInit();
+    SysTick_Config(48000);
     
     //SPIM_Init(SPI_BLE,0x08); //6Mhz
     SPIM_Init(SPI_BLE,0x06); //8Mhz
@@ -303,10 +303,10 @@ void BSP_Init(void)
     
     //module led indicator PA8
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_5);
-	GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_8;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+    GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_8;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
     
 
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);

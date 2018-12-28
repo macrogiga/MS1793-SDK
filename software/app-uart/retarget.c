@@ -493,7 +493,7 @@ void UsrProcCallback(void) //porting api
 #else //AT CMD not supported
     CheckComPortInData();
 #endif
-    if ((2 != SleepStop)||(!(GPIO_ReadInputData(GPIOD) & 0x0004)))//CTL low
+    if ((2 != SleepStop)||(!(GPIO_ReadInputData(GPIOA) & 0x0010)))//CTS low
     {
         if ((txLen) && (0 == PosW))
         {

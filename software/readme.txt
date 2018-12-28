@@ -73,7 +73,7 @@ GPA7
 TX:GPA9  
 RX:GPA10
 RTS:GPA11
-CTS:GPD2
+CTS:GPA4
 
 
 2====LED-V2BJF======================
