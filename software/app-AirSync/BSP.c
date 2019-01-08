@@ -64,7 +64,7 @@ void SPIM_Init(SPI_TypeDef* SPIx,unsigned short spi_baud_div)
 	if(SPIx==SPI1)
 	{
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);  //SPI1 clk enable
-		SPI_CS_Disable;
+		//SPI_CS_Disable;
 		
 		RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB| RCC_AHBPeriph_GPIOD, ENABLE);
 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource5, GPIO_AF_0);

@@ -35,6 +35,8 @@ int main(void)
     BSP_Init();
 
     CaptureInit();
+    SysTick_Count = 0;
+    while(SysTick_Count < 1000){}; //delay for OLED module init
     OLED_Init();
     
     SysTick_Count = 0;

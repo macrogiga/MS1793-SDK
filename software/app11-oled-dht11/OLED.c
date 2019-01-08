@@ -430,5 +430,5 @@ void OLED_Init(void)
     
     OLED_Clear();
     OLED_DispLogo();
-    OLED_DispStr(0, 6, "MS1793 EVB v1.1");
+    OLED_DispStr(0, 6, "MS179x EVBOARD ");
 }

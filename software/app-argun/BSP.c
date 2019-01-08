@@ -1,5 +1,5 @@
 #include "BSP.h"
-
+#include "mg_api.h"
 
 
 /********************************************************************************************************
@@ -64,7 +64,7 @@ void SPIM_Init(SPI_TypeDef* SPIx,unsigned short spi_baud_div)
 	if(SPIx==SPI1)
 	{
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);  //SPI1 clk enable
-		SPI_CS_Disable;
+		//SPI_CS_Disable;
 		
 		RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB, ENABLE);
 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource5, GPIO_AF_0);
@@ -187,7 +187,6 @@ void BSP_Init(void)
 	GPIO_InitTypeDef GPIO_InitStructure;
 	
 	SystemClk_HSEInit();
-	//PWM_Init();
 	SysTick_Configuration();
     
 	SPIM_Init(SPI1,0x08); //6Mhz
@@ -211,7 +210,6 @@ void BSP_Init(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
     
-//    LED_ONOFF(1);
 	
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
@@ -230,8 +228,8 @@ void BSP_Init(void)
 	NVIC_Init(&NVIC_InitStructure);
 	NVIC_SetPriority (EXTI4_15_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
     
-	PWR->CR = PWR->CR & 0xfffd; //PDDS = 0;enter stop mode
-	SCB->SCR |= 0x4;
+//	PWR->CR = PWR->CR & 0xfffd; //PDDS = 0;enter stop mode
+//	SCB->SCR |= 0x4;
 }
 
 
@@ -272,7 +270,6 @@ void McuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
         RCC_LSICmd(DISABLE);  //in STANDBY iwdg will cause reset
         
         radio_standby();
-        
         Sys_Standby();
     }
     else

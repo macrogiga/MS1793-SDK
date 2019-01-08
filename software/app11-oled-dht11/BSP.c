@@ -4,6 +4,19 @@
 
 
 
+#if defined(MS1793_EVBOARD)
+  #define DHT11_PIN GPIO_Pin_7
+  #define DHT11_PIN_SOURCE GPIO_PinSource7
+  #define DHT11_PORT GPIOA
+#elif defined(MS1797_EVBOARD)
+  #define DHT11_PIN GPIO_Pin_5
+  #define DHT11_PIN_SOURCE GPIO_PinSource5
+  #define DHT11_PORT GPIOB
+#else //default
+  #define DHT11_PIN GPIO_Pin_7
+  #define DHT11_PIN_SOURCE GPIO_PinSource7
+  #define DHT11_PORT GPIOA
+#endif
 
 void ReadDHT11(void);
 
@@ -69,7 +82,7 @@ void SPIM_Init(SPI_TypeDef* SPIx,unsigned short spi_baud_div)
     if(SPIx==SPI1)
     {
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);  //SPI1 clk enable
-        SPI_CS_Disable;
+        //SPI_CS_Disable;
 
         RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB, ENABLE);
         GPIO_PinAFConfig(GPIOB, GPIO_PinSource5, GPIO_AF_0);
@@ -98,7 +111,38 @@ void SPIM_Init(SPI_TypeDef* SPIx,unsigned short spi_baud_div)
         GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
         GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING; //上拉输入   
         GPIO_Init(GPIOB, &GPIO_InitStructure);
+    }
+    else if(SPIx==SPI2)
+    {
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);  //SPI2 clk enable
+        //SPI_CSInternalSelected(SPI2, SPI_CS_BIT0, DISABLE);
 
+        RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB | RCC_AHBPeriph_GPIOD, ENABLE);
+        GPIO_PinAFConfig(GPIOB, GPIO_PinSource14, GPIO_AF_3);
+        GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_4);
+        GPIO_PinAFConfig(GPIOB, GPIO_PinSource12, GPIO_AF_4);
+        
+        GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_15;   //spi2_cs  pb15
+        GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+        GPIO_Init(GPIOB, &GPIO_InitStructure);
+        
+        GPIO_SetBits(GPIOB, GPIO_Pin_15); //csn=H
+        
+        GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_14;   //spi2_sck  pb14
+        GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP; // 推免复用输出
+        GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+        GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_13;   //spi2_mosi  pb13
+        GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP; // 推免复用输出
+        GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+        GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_12;  //spi2_miso  pb12
+        GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING; //上拉输入
+        GPIO_Init(GPIOB, &GPIO_InitStructure);
     }
 
 
@@ -108,7 +152,6 @@ void SPIM_Init(SPI_TypeDef* SPIx,unsigned short spi_baud_div)
     SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;    // mode0 SPI_CPOL_Low, SPI_CPHA_1Edge;
     SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;  // mode3 SPI_CPOL_High,SPI_CPHA_2Edge
     SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-    //SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2;
     SPI_InitStructure.SPI_BaudRatePrescaler = spi_baud_div;
     SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
     SPI_Init(SPIx, &SPI_InitStructure);
@@ -251,14 +294,14 @@ void BSP_Init(void)
     SysTick_Configuration();
     
     //SPIM_Init(SPI1,0x08); //6Mhz
-    SPIM_Init(SPI1,0x06); //8Mhz
+    SPIM_Init(SPI_BLE,0x06); //8Mhz
+    
 
-
-    //IRQ - pa12
-    GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_12;
+    //IRQ - pa12(MS1793)  PD2(MS1797)
+    GPIO_InitStructure.GPIO_Pin  = IRQ_BLE_PIN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //上拉输入
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
+    GPIO_Init(IRQ_BLE_PORT, &GPIO_InitStructure);
 
     GPIO_InitStructure.GPIO_Pin =GPIO_Pin_0; //PA.0
     GPIO_InitStructure.GPIO_Mode =GPIO_Mode_IPD;//下拉输入
@@ -272,11 +315,11 @@ void BSP_Init(void)
     GPIO_Init(GPIOA, &GPIO_InitStructure);
     
     //DHT11 PA7
-    GPIO_PinAFConfig(GPIOA,GPIO_PinSource7,GPIO_AF_5);
-    GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_7;
+    GPIO_PinAFConfig(DHT11_PORT,DHT11_PIN_SOURCE,GPIO_AF_3);
+    GPIO_InitStructure.GPIO_Pin  = DHT11_PIN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
+    GPIO_Init(DHT11_PORT, &GPIO_InitStructure);
     GPIO_SetBits(GPIOB, GPIO_Pin_7);
     
 //    GPIO_InitStructure.GPIO_Pin  =  GPIO_Pin_3;
@@ -291,6 +334,21 @@ void BSP_Init(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 
+#ifdef MS1797_EVBOARD
+    SYSCFG_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource2);
+    EXTI_InitStructure.EXTI_Line = EXTI_Line2;
+    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    EXTI_Init(&EXTI_InitStructure);
+
+    NVIC_InitStructure.NVIC_IRQChannel = EXTI2_3_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+    NVIC_SetPriority (EXTI2_3_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
+#else
     SYSCFG_EXTILineConfig(GPIO_PortSourceGPIOA, GPIO_PinSource12);
     EXTI_InitStructure.EXTI_Line = EXTI_Line12;
     EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
@@ -304,11 +362,8 @@ void BSP_Init(void)
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
     NVIC_SetPriority (EXTI4_15_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
-
-//    PWR->CR = PWR->CR & 0xfffd; //PDDS = 0;enter stop mode
-//    SCB->SCR |= 0x4;
-    
-    IIC_Init(I2C1);
+#endif
+	IIC_Init(I2C1);
 }
 
 
@@ -318,25 +373,25 @@ void BSP_Init(void)
 
 unsigned char SPI_WriteRead(unsigned char SendData,unsigned char WriteFlag) //porting api
 {
-    SPI1->TXREG = SendData;
-    while(!(SPI1->CSTAT & SPI_FLAG_TXEPT));
-    while(!(SPI1->CSTAT & SPI_FLAG_RXAVL));
-    return SPI1->RXREG;
+    SPI_BLE->TXREG = SendData;
+    while(!(SPI_BLE->CSTAT & SPI_FLAG_TXEPT));
+    while(!(SPI_BLE->CSTAT & SPI_FLAG_RXAVL));
+    return SPI_BLE->RXREG;
 }
 
 void SPI_CS_Enable_(void) //porting api
 {
-    GPIO_ResetBits(GPIOB, GPIO_Pin_8);
+    GPIO_ResetBits(CSN_BLE_PORT, CSN_BLE_PIN);
 }
 
 void SPI_CS_Disable_(void) //porting api
 {
-    GPIO_SetBits(GPIOB, GPIO_Pin_8);
+    GPIO_SetBits(CSN_BLE_PORT, CSN_BLE_PIN);
 }
 
 char IsIrqEnabled(void) //porting api
 {
-    return (!(GPIO_ReadInputData(GPIOA) & 0x1000)); //GPA12
+    return (!(GPIO_ReadInputData(IRQ_BLE_PORT) & IRQ_BLE_PIN));
 }
 
 
@@ -505,7 +560,7 @@ static u8 Index=0;
 
 void CaptureReset(void)
 {
-    GPIO_ResetBits(GPIOA, GPIO_Pin_7);
+    GPIO_ResetBits(DHT11_PORT, DHT11_PIN);
 }
 
 void CaptureStart(void)
@@ -513,15 +568,15 @@ void CaptureStart(void)
     unsigned char delay = 0x40;
     GPIO_InitTypeDef GPIO_InitStructure;
     
-    GPIO_SetBits(GPIOA, GPIO_Pin_7);
+    GPIO_SetBits(DHT11_PORT, DHT11_PIN);
     
     while(delay--);
     
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
+    GPIO_InitStructure.GPIO_Pin = DHT11_PIN;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-    GPIO_PinAFConfig(GPIOA,GPIO_PinSource7,GPIO_AF_1);
+    GPIO_Init(DHT11_PORT, &GPIO_InitStructure);
+    GPIO_PinAFConfig(DHT11_PORT,DHT11_PIN_SOURCE,GPIO_AF_1);
     
     TIM_ITConfig(TIM3, TIM_IT_CC2/*|TIM_IT_Update*/, ENABLE);  //中断配置
     TIM_ClearITPendingBit(TIM3, TIM_IT_CC2/*|TIM_IT_Update*/); //清除中断标志位
@@ -535,12 +590,12 @@ void CaptureStop(void)
     TIM_ITConfig(TIM3, TIM_IT_CC2, DISABLE);
     TIM_Cmd(TIM3, DISABLE);
     
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
+    GPIO_InitStructure.GPIO_Pin = DHT11_PIN;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;  //推挽输出
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
+    GPIO_Init(DHT11_PORT, &GPIO_InitStructure);
     
-    GPIO_SetBits(GPIOA, GPIO_Pin_7);
+    GPIO_SetBits(GPIOA, DHT11_PIN);
     Index = 0;
     dht_step = 0;
 }
@@ -553,7 +608,6 @@ void CaptureInit(void)   //用T3的CH1 APB1  PA6    AF1
     TIM_ICInitTypeDef  TIM3_ICInitStructure;
     
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);     //Open TIM3 clock
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);  //开启GPIOA,GPIOB时钟
      
     TIM_TimeBaseStructure.TIM_Period = 0xffff; //设置在下一个更新事件装入活动的自动重装载寄存器周期的值  
     TIM_TimeBaseStructure.TIM_Prescaler =48*4-1; //设置用来作为TIMx时钟频率除数的预分频值  
