@@ -21,7 +21,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
     DEALINGS IN THE SOFTWARE.
 */
-/*lib release: v3.3.10*/
+/*lib release: v3.3.12*/
 
 #ifndef _MG_API_H_
 #define _MG_API_H_
@@ -70,7 +70,7 @@ unsigned char radio_initBle_TO(unsigned char txpwr, unsigned char** addr, unsign
 //Function: radio_setCal_nonBlocking
 //Parameters: nonblocking - 0: blocking;  1: non blocking
 //return: none
-void radio_setCal_nonBlocking(unsigned nonblocking); 
+void radio_setCal_nonBlocking(unsigned nonblocking);
 
 //Function: radio_standby
 //this function is to set rf to standby mode, I ~ 3uA
@@ -139,6 +139,7 @@ void ble_set_interval(unsigned short interval);
 //Parameters: sEnableFlag - 0 to disable adv, 1 to enable adv
 //return: None
 void ble_set_adv_enableFlag(char sEnableFlag);
+
 
 //Function: ble_disconnect
 //this function is to disconnected the ble connection
@@ -242,8 +243,16 @@ unsigned char ble_run_interrupt_McuCanSleep(void);
 
 ///////////////////////////test/debug APIs/////////////////////////////////
 //Parameters: freq - input, 0~80, center frequency(2400+freq)MHz, txpwr - input, 0x20~0x4A, txpower
-//return: None
+//return: None. in testing, add while(1); after calling this function
 void test_carrier(unsigned char freq, unsigned char txpwr);
+
+//Parameters: freq - input, 0~80, center frequency(2400+freq)MHz. Default txpwr=0dBm
+//return: None. in testing, add while(1); after calling this function
+void test_SRRCCarrier(unsigned char  freq);
+
+//Parameters: freq - input, 0~80, center frequency(2400+freq)MHz. Default txpwr=0dBm
+//return: None. in testing, add while(1); after calling this function
+void test_SRRCSpurious(unsigned char  freq);
 
 void SetFixAdvChannel(unsigned char isFixCh37Flag);
 
