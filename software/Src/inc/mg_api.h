@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2018 Macrogiga Electronics Co., Ltd.
+    Copyright (c) 2019 Macrogiga Electronics Co., Ltd.
 
     Permission is hereby granted, free of charge, to any person 
     obtaining a copy of this software and associated documentation 
@@ -21,7 +21,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
     DEALINGS IN THE SOFTWARE.
 */
-/*lib release: v3.4.2*/
+/*lib release: v3.4.3*/
 
 #ifndef _MG_API_H_
 #define _MG_API_H_

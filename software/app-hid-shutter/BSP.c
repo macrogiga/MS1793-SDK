@@ -216,8 +216,8 @@ void BSP_Init(void)
     SystemClk_HSEInit();
     SysTick_Config(48000);
     
-    //SPIM_Init(SPI_BLE,0x08); //6Mhz
-    SPIM_Init(SPI_BLE,0x06); //8Mhz
+    SPIM_Init(SPI_BLE,0x08); //6Mhz
+    //SPIM_Init(SPI_BLE,0x06); //8Mhz
     
 
     //IRQ - pa12(MS1793)  PD2(MS1797)
