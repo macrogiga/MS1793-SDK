@@ -268,6 +268,21 @@ void ChangeBaudRate(void)
     UART_Cmd(UART1, ENABLE);
 }
 
+/********************************************************************************************************
+**函数信息 ：delay_us(__IO uint32_t nTime)                 
+**功能描述 ：程序应用调用延时
+**输入参数 ：nTime：延时
+**输出参数 ：无
+********************************************************************************************************/
+static void delay_us(__IO uint32_t nTime)
+{		
+    u16 i=0;   
+    while(nTime--)   
+    {   
+        i=10;  //自己定义      
+        while(i--);       
+    }					 
+}
 
 void LED_ONOFF(unsigned char onFlag)//module indicator,GPA8
 {
@@ -385,28 +400,6 @@ void SysClk8M(void)
 
 void McuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
 {
-#ifdef USE_UART
-    if ((SleepStop)&&
-        (TxTimeout < SysTick_Count)&&
-        (RxTimeout < SysTick_Count))
-    {
-        if(SleepStop == 1){//sleep
-            SCB->SCR &= 0xfb;
-            __WFE();
-
-        }else{ //stop
-            SysClk8M();
-            SCB->SCR |= 0x4;
-            __WFI();
-            
-            RCC->CR|=RCC_CR_HSION;
-            RCC->CR |= RCC_CR_PLLON;
-            RCC->CFGR |= (uint32_t)RCC_CFGR_SW_PLL;
-            SysTick_Config(48000);
-            GPIO_ResetBits(GPIOA, GPIO_Pin_11);
-        }
-    }
-#endif
 }
 void IrqMcuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
 {
@@ -426,6 +419,13 @@ void IrqMcuGotoSleepAndWakeup(void) // auto goto sleep AND wakeup, porting api
             SleepStatus = 2;
             SysClk8M();
             SCB->SCR |= 0x4;
+            
+            SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
+            RCC->CR |=  0X1<<19;
+            RCC->CR |=  0X1<<19;
+            RCC->CR |=  0X1<<19;
+            delay_us(5);
+            
             __WFI();
         }
     }

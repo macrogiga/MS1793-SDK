@@ -33,6 +33,7 @@ extern unsigned char SleepStatus;
   */
 void NMI_Handler(void)
 {
+	RCC->CIR |= 0x1<<23;
 }
 
 /**
