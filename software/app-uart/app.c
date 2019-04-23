@@ -55,7 +55,8 @@ extern u32 BaudRate;
 
 #define SOFTWARE_INFO "SV2.1.4"
 #define MANU_INFO     "MacroGiga Bluetooth"
-char DeviceInfo[11] =  "MS179x-UART";  /*max len is 24 bytes*/
+#define LEN_NAME      24
+char DeviceInfo[LEN_NAME] =  "MS179x-UART";  /*max len is 24 bytes*/
 
 u16 cur_notifyhandle = 0x12;  //Note: make sure each notify handle by invoking function: set_notifyhandle(hd);
 
@@ -67,8 +68,12 @@ u8* getDeviceInfoData(u8* len)
 
 void updateDeviceInfoData(u8* name, u8 len)
 {
+    if(len > LEN_NAME) return;
+    
+    memset(DeviceInfo,0,LEN_NAME);
     memcpy(DeviceInfo,name, len);
-    ble_set_name(name,len);
+    ble_set_name(name,len);//if not only name in rsp packet,then use below clause instead
+    //ble_set_adv_rsp_data();
 }
 
 /**********************************************************************************

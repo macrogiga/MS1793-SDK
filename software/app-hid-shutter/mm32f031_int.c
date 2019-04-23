@@ -87,7 +87,7 @@ void EXTI0_1_IRQHandler(void)
     EXTI_ClearITPendingBit(EXTI_Line0); 
 }
 
-#ifdef MS1797_EVBOARD
+#ifdef MS1791_EVBOARD
 void EXTI2_3_IRQHandler(void)
 #else
 void EXTI4_15_IRQHandler(void)

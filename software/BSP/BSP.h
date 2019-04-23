@@ -11,7 +11,7 @@
   #define IRQ_EXTI EXTI_Line12
   #define CSN_BLE_PIN GPIO_Pin_8
   #define CSN_BLE_PORT GPIOB
-#elif defined(MS1797_EVBOARD)
+#elif defined(MS1791_EVBOARD)
   #define SPI_BLE SPI2
   #define IRQ_BLE_PIN GPIO_Pin_2
   #define IRQ_BLE_PORT GPIOD

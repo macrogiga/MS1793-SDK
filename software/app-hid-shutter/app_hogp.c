@@ -54,7 +54,7 @@ u8 CanNotifyFlag = 0;
 #define UUID16_FORMAT  0xff
 
 
-#define SOFTWARE_INFO "SV2.1.2"
+#define SOFTWARE_INFO "SV3.4.1"
 #define MANU_INFO     "MacroGiga Bluetooth"
 #define DeviceInfo    "MG-Shutter01"  /*max len is 24 bytes*/
 

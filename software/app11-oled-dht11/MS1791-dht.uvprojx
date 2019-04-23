@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>APP-HID-shutter</TargetName>
+      <TargetName>APP-DHT-I2C</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
@@ -47,7 +47,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\obj\</OutputDirectory>
-          <OutputName>MS1797-HID-shutter</OutputName>
+          <OutputName>MS1791-OLED</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -347,10 +347,10 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>0</Optim>
+            <Optim>1</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
-            <OneElfS>0</OneElfS>
+            <OneElfS>1</OneElfS>
             <Strict>0</Strict>
             <EnumInt>0</EnumInt>
             <PlainCh>0</PlainCh>
@@ -363,9 +363,9 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>MS1797_EVBOARD BLE_PAIR_SUPPORT</Define>
+              <Define>MS1791_EVBOARD</Define>
               <Undefine></Undefine>
-              <IncludePath>..\MM32x031\HAL_lib\inc;..\MM32x031\Include;..\BSP;..\Src\inc;..\MM32x031\CMSIS\KEIL_CORE;..\Src\IWDG</IncludePath>
+              <IncludePath>..\MM32x031\HAL_lib\inc;..\MM32x031\Include;..\BSP;..\Src\inc;..\MM32x031\CMSIS\KEIL_CORE;..\Src\IWDG;..\Src\ADC</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -429,9 +429,9 @@
               <FilePath>.\BSP.c</FilePath>
             </File>
             <File>
-              <FileName>mm32f031_int.c</FileName>
+              <FileName>mm32f031_it.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\mm32f031_int.c</FilePath>
+              <FilePath>.\mm32f031_it.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -513,25 +513,35 @@
               <FileType>1</FileType>
               <FilePath>..\MM32x031\HAL_lib\src\HAL_wwdg.c</FilePath>
             </File>
+            <File>
+              <FileName>HAL_bkp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MM32x031\HAL_lib\src\HAL_bkp.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>src</GroupName>
           <Files>
             <File>
-              <FileName>app_hogp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\app_hogp.c</FilePath>
+              <FileName>mg_BLE_lib_m0.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>..\Src\lib\mg_BLE_lib_m0.lib</FilePath>
             </File>
             <File>
-              <FileName>mg_BLEPAIR_lib_m0.lib</FileName>
-              <FileType>4</FileType>
-              <FilePath>..\Src\lib\mg_BLEPAIR_lib_m0.lib</FilePath>
+              <FileName>app.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\app.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>OLED.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\OLED.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -542,6 +552,16 @@
               <FileName>iwdg.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\IWDG\iwdg.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>ADC</GroupName>
+          <Files>
+            <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\ADC\adc.c</FilePath>
             </File>
           </Files>
         </Group>

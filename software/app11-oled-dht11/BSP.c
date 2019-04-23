@@ -8,7 +8,7 @@
   #define DHT11_PIN GPIO_Pin_7
   #define DHT11_PIN_SOURCE GPIO_PinSource7
   #define DHT11_PORT GPIOA
-#elif defined(MS1797_EVBOARD)
+#elif defined(MS1791_EVBOARD)
   #define DHT11_PIN GPIO_Pin_5
   #define DHT11_PIN_SOURCE GPIO_PinSource5
   #define DHT11_PORT GPIOB
@@ -334,7 +334,7 @@ void BSP_Init(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 
-#ifdef MS1797_EVBOARD
+#ifdef MS1791_EVBOARD
     SYSCFG_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource2);
     EXTI_InitStructure.EXTI_Line = EXTI_Line2;
     EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;

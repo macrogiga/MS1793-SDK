@@ -241,7 +241,7 @@ void BSP_Init(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 
-#ifdef MS1797_EVBOARD
+#ifdef MS1791_EVBOARD
     SYSCFG_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource2);
     EXTI_InitStructure.EXTI_Line = EXTI_Line2;
     EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
@@ -341,6 +341,8 @@ void IrqMcuGotoSleepAndWakeup(void)
         //to do MCU sleep and wakeup steps
         if (TOUT_STDBY < StandbyTimeout)
         {
+            if((GPIO_ReadInputData(GPIOA) & 0x01)) return;
+            
             RCC_LSICmd(DISABLE);  //in STANDBY iwdg will cause reset
             
             radio_standby();

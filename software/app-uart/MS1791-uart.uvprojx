@@ -47,7 +47,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\obj\</OutputDirectory>
-          <OutputName>MS1797-UART</OutputName>
+          <OutputName>MS1791-UART</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -363,7 +363,7 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>MS1797_EVBOARD USE_UART</Define>
+              <Define>MS1791_EVBOARD USE_UART</Define>
               <Undefine></Undefine>
               <IncludePath>..\MM32x031\HAL_lib\inc;..\MM32x031\Include;..\BSP;..\Src\inc;..\MM32x031\CMSIS\KEIL_CORE;..\Src\IWDG</IncludePath>
             </VariousControls>

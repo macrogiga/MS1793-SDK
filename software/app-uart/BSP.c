@@ -306,7 +306,7 @@ void BSP_Init(void)
     SPIM_Init(SPI_BLE,0x06); //8Mhz
     
 
-    //IRQ - pa12(MS1793)  PD2(MS1797)
+    //IRQ - pa12(MS1793)  PD2(MS1791)
     GPIO_InitStructure.GPIO_Pin  = IRQ_BLE_PIN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //…œ¿≠ ‰»Î
@@ -327,7 +327,7 @@ void BSP_Init(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 
-#ifdef MS1797_EVBOARD
+#ifdef MS1791_EVBOARD
     SYSCFG_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource2);
     EXTI_InitStructure.EXTI_Line = EXTI_Line2;
     EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
