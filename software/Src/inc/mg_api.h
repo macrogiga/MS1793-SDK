@@ -21,7 +21,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
     DEALINGS IN THE SOFTWARE.
 */
-/*lib release: v3.4.6*/
+/*lib release: v3.4.7*/
 
 #ifndef _MG_API_H_
 #define _MG_API_H_
@@ -257,11 +257,11 @@ void test_SRRCCarrier(unsigned char  freq, unsigned char txpwr);
 
 //Parameters: freq - input, 0~80, center frequency(2400+freq)MHz, txpwr - input, 0x20~0x4A, txpower
 //return: None. in testing, add while(1); after calling this function
-void test_SRRCSpurious(unsigned char  freq, unsigned char txpwr);
+void test_PRBS9(unsigned char freq, unsigned char txpwr);
 
 //Parameters: freq - input, 0~80, center frequency(2400+freq)MHz, txpwr - input, 0x20~0x4A, txpower
 //return: None. in testing, add while(1); after calling this function
-void test_PRBS9(unsigned char freq, unsigned char txpwr);
+void test_SRRCSpurious(unsigned char  freq, unsigned char txpwr);
 
 void SetFixAdvChannel(unsigned char isFixCh37Flag);
 
