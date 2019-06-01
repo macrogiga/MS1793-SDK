@@ -287,7 +287,7 @@ FLASH_Status FLASH_EraseOptionBytes(void)
 {
   FLASH_Status status = FLASH_COMPLETE;
   
-  
+  FLASH->AR = 0x1ffff800;
   
   /* Wait for last operation to be completed */
   status = FLASH_WaitForLastOperation(EraseTimeout);
