@@ -95,7 +95,7 @@ void UART1_IRQHandler(void)                	//串口1中断服务程序
 #define comrxbuf_wr_pos RxCont
 u16 comrxbuf_rd_pos = 0; //init, com rx buffer
 
-#define MAX_AT_CMD_BUF_SIZE 52
+#define MAX_AT_CMD_BUF_SIZE 58
 u8 AtCmdBuf[MAX_AT_CMD_BUF_SIZE],AtCmdBufDataSize=0;
 
 void updateDeviceInfoData(u8* name, u8 len);

@@ -21,7 +21,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
     DEALINGS IN THE SOFTWARE.
 */
-/*lib release: v3.4.8*/
+/*lib release: v3.5.1*/
 
 #ifndef _MG_API_H_
 #define _MG_API_H_
@@ -252,23 +252,8 @@ void ble_nMsRoutine(void);
 unsigned char ble_run_interrupt_McuCanSleep(void);
 
 
-///////////////////////////test/debug APIs/////////////////////////////////
-//Parameters: freq - input, 0~80, center frequency(2400+freq)MHz, txpwr - input, 0x20~0x4A, txpower
-//return: None. in testing, add while(1); after calling this function
-void test_carrier(unsigned char freq, unsigned char txpwr);
-
-//Parameters: freq - input, 0~80, center frequency(2400+freq)MHz, txpwr - input, 0x20~0x4A, txpower
-//return: None. in testing, add while(1); after calling this function
-void test_SRRCCarrier(unsigned char  freq, unsigned char txpwr);
-
-//Parameters: freq - input, 0~80, center frequency(2400+freq)MHz, txpwr - input, 0x20~0x4A, txpower
-//return: None. in testing, add while(1); after calling this function
-void test_PRBS9(unsigned char freq, unsigned char txpwr);
-
-//Parameters: freq - input, 0~80, center frequency(2400+freq)MHz, txpwr - input, 0x20~0x4A, txpower
-//return: None. in testing, add while(1); after calling this function
-void test_SRRCSpurious(unsigned char  freq, unsigned char txpwr);
-
+///////////////////////////debug APIs/////////////////////////////////
+//Parameters: isFixCh37Flag - input, 1-adv on ch37 only, 0-adv on ch37,38,39. default:0
 void SetFixAdvChannel(unsigned char isFixCh37Flag);
 
 
