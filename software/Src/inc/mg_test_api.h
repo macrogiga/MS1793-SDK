@@ -48,6 +48,7 @@ void test_RX(unsigned char freq);
 //return: None. in testing, add while(1); after calling this function
 void test_carrier(unsigned char freq, unsigned char txpwr);
 
+unsigned char* GetTestLibVer(void);
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////app implemented/porting functions//////////////////////////////
