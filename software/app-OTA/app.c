@@ -35,7 +35,7 @@
 #define ATT_CHAR_PROP_RD                            0x02
 #define ATT_CHAR_PROP_W_NORSP                       0x04
 #define ATT_CHAR_PROP_W                             0x08
-#define ATT_CHAR_PROP_NTF                			0x10
+#define ATT_CHAR_PROP_NTF                           0x10
 #define ATT_CHAR_PROP_IND                           0x20 
 #define GATT_PRIMARY_SERVICE_UUID                   0x2800
 
@@ -92,7 +92,7 @@ typedef struct ble_character16{
     u8  uuid128_idx;     //0xff means uuid16,other is idx of uuid128
 }BLE_CHAR;
 
-typedef struct ble_UUID128{    
+typedef struct ble_UUID128{
     u8  uuid128[16];//uuid128 string: little endian
 }BLE_UUID128;
 
@@ -109,7 +109,7 @@ const BLE_CHAR AttCharList[] = {
     {TYPE_CHAR,0x0e,ATT_CHAR_PROP_RD, 0x0f,0,0x28,0x2a,UUID16_FORMAT},//sw version
     {TYPE_CHAR,0x10,ATT_CHAR_PROP_RD, 0x11,0,0x23,0x2a,UUID16_FORMAT},//system ID
     
-    {TYPE_CHAR,0x13,ATT_CHAR_PROP_W|ATT_CHAR_PROP_RD,                   0x14,0, 0,0, 3/*uuid128-idx3*/ },//OTA
+    {TYPE_CHAR,0x13,ATT_CHAR_PROP_W_NORSP|ATT_CHAR_PROP_RD,                   0x14,0, 0,0, 3/*uuid128-idx3*/ },//OTA
     {TYPE_INFO, 0x15,ATT_CHAR_PROP_RD},//description,"Mg OTA"
 };
 
@@ -150,7 +150,7 @@ void att_server_rdByGrType( u8 pdu_type, u8 attOpcode, u16 st_hd, u16 end_hd, u1
         att_server_rdByGrTypeRspPrimaryService(pdu_type,0x7,0x11,(u8*)(t),2);
         return;
     }
-	 else if((att_type == GATT_PRIMARY_SERVICE_UUID) && (st_hd <= 0x12)) //OTA service
+    else if((att_type == GATT_PRIMARY_SERVICE_UUID) && (st_hd <= 0x12)) //OTA service
     {
         att_server_rdByGrTypeRspPrimaryService(pdu_type,0x12,0x15,(u8*)(AttUuid128List[0].uuid128),16);
         
@@ -176,7 +176,7 @@ void ser_write_rsp(u8 pdu_type/*reserved*/, u8 attOpcode/*reserved*/,
     {
         case 0x14://OTA
             OTA_Proc(attValue, valueLen_w); //rsp followed
-            ser_write_rsp_pkt(pdu_type);
+            ///ser_write_rsp_pkt(pdu_type);  //ATT_CHAR_PROP_W_NORSP
             break;
         default:
             att_notFd( pdu_type, attOpcode, att_hd );	/*the default response, also for the purpose of error robust */
