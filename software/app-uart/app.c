@@ -213,6 +213,12 @@ void ser_prepare_write(u16 handle, u8* attValue, u16 attValueLen, u16 att_offset
     //when ser_execute_write() is invoked, means end of queue write.
     
     //to do    
+    if (0x0015 == handle)
+    {
+#ifdef USE_UART
+        moduleOutData(attValue,attValueLen);
+#endif
+    }
 }
  
 void ser_execute_write(void)//user's call back api 
@@ -324,7 +330,7 @@ void ConnectStausUpdate(unsigned char IsConnectedFlag) //porting api
 {
     //[IsConnectedFlag] indicates the connection status
     
-    LED_ONOFF(!IsConnectedFlag);
+//    LED_ONOFF(!IsConnectedFlag);
 
     if (IsConnectedFlag != gConnectedFlag)
     {

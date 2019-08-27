@@ -269,19 +269,19 @@ void ChangeBaudRate(void)
 }
 
 /********************************************************************************************************
-**函数信息 ：delay_us(__IO uint32_t nTime)                 
+**函数信息 ：delay_us(__IO uint32_t nTime)
 **功能描述 ：程序应用调用延时
 **输入参数 ：nTime：延时
 **输出参数 ：无
 ********************************************************************************************************/
 static void delay_us(__IO uint32_t nTime)
-{		
-    u16 i=0;   
-    while(nTime--)   
+{
+    u16 i=0;
+    while(nTime--)
     {   
-        i=10;  //自己定义      
-        while(i--);       
-    }					 
+        i=10;  //自己定义
+        while(i--);
+    }
 }
 
 void LED_ONOFF(unsigned char onFlag)//module indicator,GPA8
@@ -302,8 +302,8 @@ void BSP_Init(void)
     SystemClk_HSEInit();
     SysTick_Config(48000);
     
-    //SPIM_Init(SPI_BLE,0x08); //6Mhz
-    SPIM_Init(SPI_BLE,0x06); //8Mhz
+    SPIM_Init(SPI_BLE,0x08); //6Mhz
+    //SPIM_Init(SPI_BLE,0x06); //8Mhz
     
 
     //IRQ - pa12(MS1793)  PD2(MS1791)

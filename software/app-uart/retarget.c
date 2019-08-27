@@ -11,12 +11,16 @@ extern void ChangeBaudRate(void);
 #define MS1793_UART_VERSION_STRING  "IND:Ver1.0\n"
 
 
-
-#define MAX_SIZE 200
-u8 txBuf[MAX_SIZE], rxBuf[MAX_SIZE];
+#ifdef USE_AT_CMD
+//uart stream buffer, should > MAX_AT_CMD_BUF_SIZE for ATCMD
+    #define MAX_SIZE 1500
+#else  
+    #define MAX_SIZE 500
+#endif
+u8 txBuf[MAX_SIZE]={0}, rxBuf[MAX_SIZE]={0};
 
 static u16 RxCont = 0;
-static u8 PosW = 0, txLen = 0;
+static u16 PosW = 0, txLen = 0;
 unsigned int RxTimeout = 0;
 unsigned int TxTimeout = 0;
 
@@ -90,20 +94,10 @@ void UART1_IRQHandler(void)                	//串口1中断服务程序
     }
 }
 
-///////////////FIFO proc for AT cmd///////////////
-#define TO_HIGH_CASE   
-#define comrxbuf_wr_pos RxCont
-u16 comrxbuf_rd_pos = 0; //init, com rx buffer
-
-#define MAX_AT_CMD_BUF_SIZE 58
-u8 AtCmdBuf[MAX_AT_CMD_BUF_SIZE],AtCmdBufDataSize=0;
-
-void updateDeviceInfoData(u8* name, u8 len);
-void ble_set_interval(unsigned short interval/*unit= 0.625ms*/);//160==>100ms
-
-void moduleOutData(u8*data, u8 len) //api
+//used by app-uart and app-uart-cmd
+void moduleOutData(u8*data, u16 len) //api
 {
-    unsigned char i;
+    u16 i;
 
     if ((txLen+len)<MAX_SIZE)//buff not overflow
     {
@@ -115,8 +109,26 @@ void moduleOutData(u8*data, u8 len) //api
     }
 }
 
+
+//#define TO_HIGH_CASE   
+#define comrxbuf_wr_pos RxCont
+u16 comrxbuf_rd_pos = 0; //init, com rx buffer
+
+///////////////FIFO proc for AT cmd///////////////
+#ifdef USE_AT_CMD
+//500 Byte
+#define MAX_SEND_LEN  500
+#define MAX_AT_CMD_BUF_SIZE (19+2*MAX_SEND_LEN)
+u8 AtCmdBuf[MAX_AT_CMD_BUF_SIZE];
+u16 AtCmdBufDataSize=0;
+
+void updateDeviceInfoData(u8* name, u8 len);
+void ble_set_interval(unsigned short interval/*unit= 0.625ms*/);//160==>100ms
+
+
+
 //AT+SETNAME=abcdefg
-void atcmd_SetName(u8* parameter,u8 len)
+void atcmd_SetName(u8* parameter,u16 len)
 {   
     if(len <= 8){
         moduleOutData((u8*)"IND:ERR\n",8);
@@ -128,7 +140,7 @@ void atcmd_SetName(u8* parameter,u8 len)
 }
 
 //AT+SETINTERVAL=160
-void atcmd_SetAdvInt(u8* parameter,u8 len)
+void atcmd_SetAdvInt(u8* parameter,u16 len)
 {
     int v = 0;
     unsigned char i;
@@ -167,15 +179,22 @@ u8 Hex2Int(unsigned char C)
     }
 }
 
-//AT+BLESEND=N,0x123456abc
-void atcmd_SendData(u8* parameter,u8 len)
+//AT+BLESEND=N,0x123456abef
+u8 send_data[MAX_SEND_LEN] = {0};
+u16 SentNum = 0, SendLen = 0;
+void atcmd_SendData(u8* parameter, u16 len)
 {
-    u8* data = parameter;
-    u8  data_len = 0,i;
+//    u8* data = send_data;
+    u16 data_len = 0,i;
+    u16 len_datalen = 0;
     
     //I am here check the data format
-    //tbd...
     if(len <= 8){
+        moduleOutData((u8*)"IND:ERR\n",8);
+        return;
+    }
+    
+    if(0 == GetConnectedStatus()){
         moduleOutData((u8*)"IND:ERR\n",8);
         return;
     }
@@ -187,24 +206,69 @@ void atcmd_SendData(u8* parameter,u8 len)
         data_len += (parameter[0] - '0');
         
         parameter ++;
+        len_datalen ++;
+    }
+    
+    if(data_len > MAX_SEND_LEN){
+        moduleOutData((u8*)"IND:ERR\n",8);
+        return;
     }
     
     parameter += 3; //move 0x
+
     
-    for(i = 0 ; i < data_len ; i ++)
+#if 0    
+    for(i = 0 ; i < data_len ; i ++) //strict data & datalen check
     {
-        data[i] = ((Hex2Int(parameter[0]) << 4) | Hex2Int(parameter[1]));
+        send_data[i] = ((Hex2Int(parameter[0]) << 4) | Hex2Int(parameter[1]));
         parameter += 2;
     }
+#else
+    len_datalen = (len - 11 - len_datalen)/2;
+
+    SendLen += data_len;
+    if (SendLen > MAX_SEND_LEN)
+        SendLen -= MAX_SEND_LEN;
+    
+    for(i = 0 ; i < len_datalen ; i++) 
+    {
+        send_data[(SentNum+i)%MAX_SEND_LEN] = ((Hex2Int(parameter[0]) << 4) | Hex2Int(parameter[1]));
+        parameter += 2;
+    }
+    for(i=len_datalen; i<data_len; i++) //data pad with 0
+    {
+        send_data[(SentNum+i)%MAX_SEND_LEN] = 0x30;
+    }
+#endif
     
     //ble send data [data, data_len]
-    sconn_notifydata(data,data_len); //pls check the connect status if necessary
+    //send = sconn_notifydata(data,data_len); //pls check the connect status if necessary
     
     moduleOutData((u8*)"IND:OK\n",7);
 }
 
+static void at_blesend(void)
+{
+    if (!GetConnectedStatus())
+    {
+        SentNum = SendLen = 0;
+    }
+    
+    if(SendLen > SentNum)
+    {
+        SentNum += sconn_notifydata(send_data+SentNum, (((SendLen - SentNum) > 20)? 20:(SendLen - SentNum)));
+        if(SentNum == SendLen) SentNum = SendLen = 0;
+    }
+    else if(SendLen < SentNum)
+    {
+        SentNum += sconn_notifydata(send_data+SentNum, (((MAX_SEND_LEN - SentNum) > 20)? 20:(MAX_SEND_LEN - SentNum)));
+    }
+    
+    SentNum %= MAX_SEND_LEN;
+}
+
 //AT+SETADVFLAG=x		x=0/1, 0 disable adv, 1 enable adv
-void atcmd_SetAdvFlag(u8* parameter,u8 len)
+void atcmd_SetAdvFlag(u8* parameter,u16 len)
 {
     if(len <= 11){
         moduleOutData((u8*)"IND:ERR\n",8);
@@ -226,7 +290,7 @@ void atcmd_SetAdvFlag(u8* parameter,u8 len)
 }
 
 //AT+DISCON, disconnect the connection is any
-void atcmd_DisconnecteBle(u8* parameter,u8 len)
+void atcmd_DisconnecteBle(u8* parameter,u16 len)
 {
     if(len != 6){
         moduleOutData((u8*)"IND:ERR\n",8);
@@ -237,7 +301,7 @@ void atcmd_DisconnecteBle(u8* parameter,u8 len)
 }
 
 //AT+LOWPOWER=x		x=0/1/2
-void atcmd_LowPower(u8* parameter,u8 len)
+void atcmd_LowPower(u8* parameter,u16 len)
 {
     if(len <= 9){
         moduleOutData((u8*)"IND:ERR\n",8);
@@ -263,7 +327,7 @@ void atcmd_LowPower(u8* parameter,u8 len)
 }
 unsigned char WaitSetBaud=0;
 //AT+SETBAUD
-void atcmd_SetBaud(u8* parameter,u8 len)
+void atcmd_SetBaud(u8* parameter,u16 len)
 {
     int v = 0;
     unsigned char i;
@@ -289,11 +353,11 @@ void atcmd_SetBaud(u8* parameter,u8 len)
 
 }
 
-void atcmd_Minfo(u8* parameter,u8 len);
-void atcmd_Help(u8* parameter,u8 len);
+void atcmd_Minfo(u8* parameter,u16 len);
+void atcmd_Help(u8* parameter,u16 len);
     
 #define MAX_AT_CMD_NAME_SIZE 16
-typedef void (*ATCMDFUNC)(u8* cmd/*NULL ended, leading with the cmd NAME string, checking usage*/,u8 len);    
+typedef void (*ATCMDFUNC)(u8* cmd/*NULL ended, leading with the cmd NAME string, checking usage*/,u16 len);    
 typedef struct _tagATCMD
 {
     ATCMDFUNC func;
@@ -333,7 +397,7 @@ u8 IsExactCmdInclude(u8* data, const u8* cmd)
 #define at_cmd_num  (sizeof(at_func_list)/sizeof(at_func_list[0]))
     
 //AT+MINFO
-void atcmd_Minfo(u8* parameter,u8 len)
+void atcmd_Minfo(u8* parameter,u16 len)
 {    
     moduleOutData((u8*)"IND:OK\n",7);
     
@@ -352,7 +416,7 @@ void atcmd_Minfo(u8* parameter,u8 len)
 }
 
 //AT+HELP
-void atcmd_Help(u8* parameter,u8 len)
+void atcmd_Help(u8* parameter,u16 len)
 {
     u8 i,templen;
     u8 name[20]="AT+";
@@ -364,13 +428,13 @@ void atcmd_Help(u8* parameter,u8 len)
     for(i = 0; i < at_cmd_num ; i ++)
     {
         strcpy((char*)name+3,((char*)at_func_list[i].name));
-		templen = strlen((char*)name);
-		name[templen] = 0X0A;
+        templen = strlen((char*)name);
+        name[templen] = 0X0A;
         moduleOutData((u8*)name,templen+1); //NULL terminated format
     }
 }
 
-void AtCmdParser(u8* cmd, u8 len)
+void AtCmdParser(u8* cmd, u16 len)
 {
     u8 i;    
     
@@ -385,19 +449,19 @@ void AtCmdParser(u8* cmd, u8 len)
         }
     }
 #if UART_DBG_EN
-    printf("IND:ERROR CMD not supported.\n");    
+    printf("IND:ERROR CMD not supported.\n");
 #endif
     moduleOutData((u8*)"IND:ERR\n",8);
 }
 
 
-void AtCmdPreParser(u8* cmd, u8 len)
+void AtCmdPreParser(u8* cmd, u16 len)
 {
     if(!IsExactCmdInclude(cmd, (const u8*)"AT+")) //AT+MINFO
     {
-#ifdef UART_DBG_EN        
+#ifdef UART_DBG_EN
         printf("IND:ERROR CMD format error.\n");
-#endif        
+#endif
         moduleOutData((u8*)"IND:ERR\n",8);
         return; //cmd error
     }
@@ -436,10 +500,10 @@ void CheckAtCmdInfo(void) //main entrance
         comrxbuf_rd_pos %= MAX_SIZE; //com buff len
     }
 }
+#endif //USE_AT_CMD
 
 
-
-void CheckComPortInData(void) //at cmd NOT supported
+static void CheckComPortInData(void) //at cmd NOT supported
 {
     u16 send;
     
@@ -453,12 +517,12 @@ void CheckComPortInData(void) //at cmd NOT supported
         {
             if(comrxbuf_wr_pos > comrxbuf_rd_pos)
             {
-                send = sconn_notifydata(rxBuf+comrxbuf_rd_pos,comrxbuf_wr_pos - comrxbuf_rd_pos);
+                send = sconn_notifydata(rxBuf+comrxbuf_rd_pos, ((comrxbuf_wr_pos - comrxbuf_rd_pos)>255)?255:(comrxbuf_wr_pos - comrxbuf_rd_pos));
                 comrxbuf_rd_pos += send;
             }
             else 
             {
-                send = sconn_notifydata(rxBuf+comrxbuf_rd_pos,MAX_SIZE - comrxbuf_rd_pos);
+                send = sconn_notifydata(rxBuf+comrxbuf_rd_pos, ((MAX_SIZE - comrxbuf_rd_pos) > 255)?255:(MAX_SIZE - comrxbuf_rd_pos));
                 comrxbuf_rd_pos += send;
                 comrxbuf_rd_pos %= MAX_SIZE;
             }
@@ -468,11 +532,14 @@ void CheckComPortInData(void) //at cmd NOT supported
 
 void UsrProcCallback(void) //porting api
 {
-    u16 conn_interv = 0;
+//    u16 conn_interv = 0;
     static u16 counter = 0; 
     
     IWDG_ReloadCounter();
 
+    counter ++;
+    LED_ONOFF(counter & 0x1);
+    
 #if 0
     if(GetConnectedStatus()){
         counter ++;
@@ -490,6 +557,7 @@ void UsrProcCallback(void) //porting api
 
 #ifdef USE_AT_CMD
     CheckAtCmdInfo();
+    at_blesend();
 #else //AT CMD not supported
     CheckComPortInData();
 #endif
