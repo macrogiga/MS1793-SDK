@@ -122,7 +122,7 @@ const BLE_CHAR AttCharList[] = {
     {TYPE_CHAR,0x2c,ATT_CHAR_PROP_RD, 0x2d,0,0x0b,0x0a,UUID16_FORMAT},//
     
 // ======  battery service  ======    
-    {TYPE_CHAR,0x2f,ATT_CHAR_PROP_RD|ATT_CHAR_PROP_NTF,    0x30,0,0x19,0x29,UUID16_FORMAT},//battery level
+    {TYPE_CHAR,0x2f,ATT_CHAR_PROP_RD|ATT_CHAR_PROP_NTF,    0x30,0,0x19,0x2a,UUID16_FORMAT},//battery level
     {TYPE_CFG, 0x31,ATT_CHAR_PROP_RD|ATT_CHAR_PROP_W},//cfg
     
 // ======  scan prameter service  ======        
@@ -482,7 +482,7 @@ u8 NotifyKey(u8 KeyIdx)//hid standard keyboard key, hardcode
     return 1;
 }
 
-//±¾»Øµ÷º¯Êý¿ÉÓÃÓÚÀ¶ÑÀÄ£¿é¶ËÖ÷¶¯·¢ËÍÊý¾ÝÖ®ÓÃ£¬Ð­ÒéÕ»»áÔÚÏµÍ³ÔÊÐíµÄÊ±ºò£¨Òì²½£©»Øµ÷±¾º¯Êý£¬²»µÃ×èÈû£¡£¡
+//æœ¬å›žè°ƒå‡½æ•°å¯ç”¨äºŽè“ç‰™æ¨¡å—ç«¯ä¸»åŠ¨å‘é€æ•°æ®ä¹‹ç”¨ï¼Œåè®®æ ˆä¼šåœ¨ç³»ç»Ÿå…è®¸çš„æ—¶å€™ï¼ˆå¼‚æ­¥ï¼‰å›žè°ƒæœ¬å‡½æ•°ï¼Œä¸å¾—é˜»å¡žï¼ï¼
 void gatt_user_send_notify_data_callback(void)
 {
     //to do if any ...
@@ -551,7 +551,7 @@ unsigned char aes_encrypt_HW(unsigned char *_data, unsigned char *_key)
     AES->DINR = (u32)(_data[8] << 24)|(u32)(_data[9] << 16)|(u32)(_data[10] << 8)|(u32)(_data[11] << 0);
     AES->DINR = (u32)(_data[12] << 24)|(u32)(_data[13] << 16)|(u32)(_data[14] << 8)|(u32)(_data[15] << 0);	
 	
-	//²éÑ¯Ä£Ê½
+	//æŸ¥è¯¢æ¨¡å¼
     while(1)
     {
         if((AES->SR & 0x01) )
