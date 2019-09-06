@@ -21,7 +21,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
     DEALINGS IN THE SOFTWARE.
 */
-/*lib release: v3.5.4*/
+/*lib release: v3.5.5*/
 
 #ifndef _MG_API_H_
 #define _MG_API_H_
@@ -142,7 +142,7 @@ void ble_set_name(unsigned char* name,unsigned char len);
 void ble_set_adv_type(unsigned char type);
 
 //Function: ble_set_interval
-//Parameters: interval - advertisement interval, unit 0.625ms
+//Parameters: interval - advertisement interval, 0x0020~0x4000, unit 0.625ms
 //return: None
 void ble_set_interval(unsigned short interval);
 
