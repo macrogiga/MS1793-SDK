@@ -19,6 +19,8 @@ unsigned char *ble_mac_addr;
 int main(void)
 {
     unsigned long temp=0x200000;
+    unsigned char *ft_val = (unsigned char *)(0x1FFFF804);
+    unsigned char ft_value[2] = {0xc0, 0x12};
 
     while(temp--);//wait a while for hex programming if using the MCU stop mode, default NOT used.
     
@@ -32,6 +34,16 @@ int main(void)
 
     SetBleIntRunningMode();
     radio_initBle(TXPWR_0DBM, &ble_mac_addr);
+    
+#if defined(MS1791_EVBOARD)
+    if((*ft_val > 11) && (*ft_val < 27)){
+        ft_value[1] = *ft_val;
+        mg_activate(0x53);
+        mg_writeBuf(0x4, ft_value, 2);
+        mg_activate(0x56);
+    }
+#endif
+    
 #ifdef USE_UART
 	printf("\r\nMAC:%02x-%02x-%02x-%02x-%02x-%02x", ble_mac_addr[5],ble_mac_addr[4],ble_mac_addr[3],ble_mac_addr[2],ble_mac_addr[1],ble_mac_addr[0]);
 #endif

@@ -99,7 +99,7 @@ typedef struct ble_character16{
     u8  uuid128_idx;     //0xff means uuid16,other is idx of uuid128
 }BLE_CHAR;
 
-typedef struct ble_UUID128{    
+typedef struct ble_UUID128{
     u8  uuid128[16];//uuid128 string: little endian
 }BLE_UUID128;
 
@@ -117,9 +117,9 @@ const BLE_CHAR AttCharList[] = {
     
 // ======  User service or other services added here =====  User defined  
     {TYPE_CHAR,0x0011, {ATT_CHAR_PROP_NTF,                     0x12,0, 0,0}, 1/*uuid128-idx1*/ },//RxNotify
-    {TYPE_CFG, 0x0013, {ATT_CHAR_PROP_RD|ATT_CHAR_PROP_W}},//cfg    
+    {TYPE_CFG, 0x0013, {ATT_CHAR_PROP_RD|ATT_CHAR_PROP_W}},//cfg
     {TYPE_CHAR,0x0014, {ATT_CHAR_PROP_W|ATT_CHAR_PROP_W_NORSP, 0x15,0, 0,0}, 2/*uuid128-idx2*/ },//Tx    
-	{TYPE_CHAR,0x0017, {ATT_CHAR_PROP_W|ATT_CHAR_PROP_RD,      0x18,0, 0,0}, 3/*uuid128-idx3*/ },//BaudRate
+    {TYPE_CHAR,0x0017, {ATT_CHAR_PROP_W|ATT_CHAR_PROP_RD,      0x18,0, 0,0}, 3/*uuid128-idx3*/ },//BaudRate
     {TYPE_INFO,0x0019, {ATT_CHAR_PROP_RD}}//description,"BaudRate"
 };
 
@@ -181,10 +181,10 @@ void ser_write_rsp(u8 pdu_type/*reserved*/, u8 attOpcode/*reserved*/,
     switch(att_hd)
     {
         case 0x18://BaudRate
-			BaudRate = ((*(attValue+2))<<16)|((*(attValue+1))<<8)|(*attValue);
-			ser_write_rsp_pkt(pdu_type);
-			ChangeBaudRate();
-			break;
+            BaudRate = ((*(attValue+2))<<16)|((*(attValue+1))<<8)|(*attValue);
+            ser_write_rsp_pkt(pdu_type);
+            ChangeBaudRate();
+            break;
         case 0x15://Tx
 #ifdef USE_UART
     #ifdef USE_AT_CMD
@@ -248,7 +248,7 @@ void server_rd_rsp(u8 attOpcode, u16 attHandle, u8 pdu_type)
             break;
         
         case 0x0b: //FIRMWARE_INFO
-        {            
+        {
             //do NOT modify this code!!!
             att_server_rd( pdu_type, attOpcode, attHandle, GetFirmwareInfo(),strlen((const char*)GetFirmwareInfo()));
             break;
@@ -266,10 +266,10 @@ void server_rd_rsp(u8 attOpcode, u16 attHandle, u8 pdu_type)
             break;
         
         case 0x18://BaudRate
-			tab[0]=(BaudRate&0xff0000)>>16;
-			tab[1]=(BaudRate&0xff00)>>8;
-			tab[2]=BaudRate;
-			att_server_rd( pdu_type, attOpcode, attHandle, tab, 3);
+            tab[0]=(BaudRate&0xff0000)>>16;
+            tab[1]=(BaudRate&0xff00)>>8;
+            tab[2]=BaudRate;
+            att_server_rd( pdu_type, attOpcode, attHandle, tab, 3);
             break;
         
         case 0x19: //description
@@ -280,7 +280,7 @@ void server_rd_rsp(u8 attOpcode, u16 attHandle, u8 pdu_type)
         default:
             att_notFd( pdu_type, attOpcode, attHandle );/*the default response, also for the purpose of error robust */
             break;
-    }               
+    }
 }
 
 void server_blob_rd_rsp(u8 attOpcode, u16 attHandle, u8 dataHdrP,u16 offset)
@@ -289,16 +289,16 @@ void server_blob_rd_rsp(u8 attOpcode, u16 attHandle, u8 dataHdrP,u16 offset)
 
 //return 1 means found
 int GetPrimaryServiceHandle(unsigned short hd_start, unsigned short hd_end,
-                            unsigned short uuid16,   
+                            unsigned short uuid16,
                             unsigned short* hd_start_r,unsigned short* hd_end_r)
 {
 // example    
-//    if((uuid16 == 0x1812) && (hd_start <= 0x19))// MUST keep match with the information save in function  att_server_rdByGrType(...)
-//    {
-//        *hd_start_r = 0x19;
-//        *hd_end_r = 0x2a;
-//        return 1;
-//    }
+    if((uuid16 == 0xca9e) && (hd_start <= 0x10))// MUST keep match with the information save in function  att_server_rdByGrType(...)
+    {
+        *hd_start_r = 0x10;
+        *hd_end_r = 0x19;
+        return 1;
+    }
     
     return 0;
 }
@@ -338,14 +338,14 @@ void ConnectStausUpdate(unsigned char IsConnectedFlag) //porting api
 
 #ifdef USE_UART
 #ifdef USE_AT_CMD
-		if(gConnectedFlag)
-		{
-			moduleOutData((u8*)"IND:CONNECT\n",12);
-		}
-		else
-		{
-			moduleOutData((u8*)"IND:DISCONNECT\n",15);
-		}
+        if(gConnectedFlag)
+        {
+            moduleOutData((u8*)"IND:CONNECT\n",12);
+        }
+        else
+        {
+            moduleOutData((u8*)"IND:DISCONNECT\n",15);
+        }
 #else
 //        if(gConnectedFlag){
 //            SleepStop = 1;

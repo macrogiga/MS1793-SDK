@@ -28,6 +28,8 @@ extern u16 Timer2S;
 
 int main(void)
 {
+    unsigned char *ft_val = (unsigned char *)(0x1FFFF804);
+    unsigned char ft_value[2] = {0xc0, 0x12};
     u8 Line = 0;
     u16 ValHumi = 0xffff;
     u16 ValTemp = 0xffff;
@@ -44,6 +46,15 @@ int main(void)
     
     SetBleIntRunningMode();
     radio_initBle(TXPWR_0DBM, &ble_mac_addr);
+    
+#if defined(MS1791_EVBOARD)
+    if((*ft_val > 11) && (*ft_val < 27)){
+        ft_value[1] = *ft_val;
+        mg_activate(0x53);
+        mg_writeBuf(0x4, ft_value, 2);
+        mg_activate(0x56);
+    }
+#endif
     
     ble_set_adv_data((unsigned char *)AdvDat_HRS, sizeof(AdvDat_HRS));
 
