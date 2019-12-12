@@ -39,6 +39,7 @@ int main(void)
 #endif
     
     ble_set_adv_data(pld_adv, sizeof(pld_adv));
+    //SetLePinCode("000000");
     
     SysTick_Count = 0;
     while(SysTick_Count < 5){}; //delay at least 5ms between radio_initBle() and ble_run...

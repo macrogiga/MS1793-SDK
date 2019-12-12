@@ -413,7 +413,7 @@ void SysClk48to8(void)
     SysTick_Config(8000);
 }
 
-static char dis_int_count = 0;
+//static char dis_int_count = 0;
 void DisableEnvINT(void)
 { 
 //    //to disable int

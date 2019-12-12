@@ -434,8 +434,6 @@ void EnableEnvINT(void)
 {
 }
 
-//api provide in blelib
-//    EnableLED_Flag; Led_R; Led_G; Led_B; Led_Y; Led_W; Led_Lum_percent; 
 void UpdateLEDValueAll(void) //porting function
 {
 }

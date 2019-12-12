@@ -1,15 +1,12 @@
 
 /* Includes ------------------------------------------------------------------*/
-// #include "stm32f0xx_it.h"
-// #include "stm32f0xx_exti.h"
-// #include "stm32f0xx_tim.h"
-// #include "stm32f0xx_gpio.h"
 
 /** @addtogroup Template_Project
   * @{
   */
 #include "HAL_conf.h"
 #include "BSP.h"
+#include "mg_api.h"
 
 
 /* Private typedef -----------------------------------------------------------*/

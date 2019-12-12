@@ -6,7 +6,7 @@ extern char GetConnectedStatus(void);
 unsigned char SleepStatus = 2; //1-sleep, 2-stop, 0-running
 
 /********************************************************************************************************
-**函数信息 ：SPIM_TXEn(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_TXEn(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
@@ -18,7 +18,7 @@ void SPIM_TXEn(SPI_TypeDef* SPIx)
 }
 
 /********************************************************************************************************
-**函数信息 ：SPIM_TXDisable(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_TXDisable(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
@@ -30,7 +30,7 @@ void SPIM_TXDisable(SPI_TypeDef* SPIx)
 }
 
 /********************************************************************************************************
-**函数信息 ：SPIM_RXEn(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_RXEn(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
@@ -42,7 +42,7 @@ void SPIM_RXEn(SPI_TypeDef* SPIx)
 }
 
 /********************************************************************************************************
-**函数信息 ：SPIM_RXDisable(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_RXDisable(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
@@ -328,7 +328,6 @@ void IrqMcuGotoSleepAndWakeup(void)
             if((GPIO_ReadInputData(GPIOA) & 0x01)) return;
             
             RCC_LSICmd(DISABLE);  //in STANDBY iwdg will cause reset
-            
             radio_standby();
             Sys_Standby();
         }else{ //enter SLEEP/STOP to save power
@@ -368,7 +367,7 @@ void SysClk48to8(void)
     __ASM volatile("cpsie i");
 }
 
-static char dis_int_count = 0;
+//static char dis_int_count = 0;
 void DisableEnvINT(void)
 { 
 //    //to disable int

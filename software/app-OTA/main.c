@@ -4,6 +4,7 @@
 #include "BSP.h"
 #include "mg_api.h"
 
+
 unsigned char *ble_mac_addr;
 unsigned char* get_local_addr(void) //used for ble pairing case
 {
@@ -13,13 +14,13 @@ unsigned char* get_local_addr(void) //used for ble pairing case
 
 const unsigned char OTAAdvDat[]=
 {
-	0x02,0x01,0x06,
-	0x03,0x03,0x90,0xfe};
+    0x02,0x01,0x06,
+    0x03,0x03,0x90,0xfe};
 unsigned char OTARspDat[]=
 {
-	0x4,0x09,'O','T','A',
-	0x05,0xff,0xcd,0xab,0x23,0x56};
-	
+    0x4,0x09,'O','T','A',
+    0x05,0xff,0xcd,0xab,0x23,0x56};
+    
 int main(void)
 {
     unsigned long temp=0x180000;
@@ -28,11 +29,11 @@ int main(void)
     
     BSP_Init();
 
-    radio_initBle(TXPWR_0DBM, &ble_mac_addr);  
-	
+    radio_initBle(TXPWR_0DBM, &ble_mac_addr);
+    
     ble_set_adv_data((unsigned char *)OTAAdvDat,sizeof(OTAAdvDat));
-	ble_set_adv_rsp_data((unsigned char *)OTARspDat,sizeof(OTARspDat));
- 
+    ble_set_adv_rsp_data((unsigned char *)OTARspDat,sizeof(OTARspDat));
+
     
     ble_run(200); //200*0.625=125 ms
 }

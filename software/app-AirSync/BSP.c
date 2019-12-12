@@ -1,9 +1,11 @@
 #include "BSP.h"
+#include "mg_api.h"
+
 
 unsigned char SleepStop = 0x02; //01-sleep, 02-stop
 
 /********************************************************************************************************
-**函数信息 ：SPIM_TXEn(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_TXEn(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
@@ -15,7 +17,7 @@ void SPIM_TXEn(SPI_TypeDef* SPIx)
 }
 
 /********************************************************************************************************
-**函数信息 ：SPIM_TXDisable(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_TXDisable(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
@@ -27,7 +29,7 @@ void SPIM_TXDisable(SPI_TypeDef* SPIx)
 }
 
 /********************************************************************************************************
-**函数信息 ：SPIM_RXEn(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_RXEn(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
@@ -39,7 +41,7 @@ void SPIM_RXEn(SPI_TypeDef* SPIx)
 }
 
 /********************************************************************************************************
-**函数信息 ：SPIM_RXDisable(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_RXDisable(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
@@ -51,7 +53,7 @@ void SPIM_RXDisable(SPI_TypeDef* SPIx)
 }
 
 /********************************************************************************************************
-**函数信息 ：SPIM_Init(SPI_TypeDef* SPIx, unsigned short spi_baud_div)            
+**函数信息 ：SPIM_Init(SPI_TypeDef* SPIx, unsigned short spi_baud_div)
 **功能描述 :可修改参数初始化SPI
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2  ;spi_baud_div
 **输出参数 ：无
@@ -163,7 +165,7 @@ void SetSysClock_HSI(u8 PLL)
   
   RCC->CR &=~(RCC_CR_PLLON);		//clear PLL//	RCC->CR &=~(7<<20);		//clear PLL
   
-  RCC->CR &=~(0x1f<<26);	
+  RCC->CR &=~(0x1f<<26);
   RCC->CR|=(PLL - 1) << 26;   //setting PLL value 2~16
   
   FLASH->ACR=FLASH_ACR_LATENCY_1|FLASH_ACR_PRFTBE;	  //FLASH 2 delay clk cycles
@@ -380,7 +382,7 @@ void SysClk48to8(void)
     SysTick_Config(8000);
 }
 
-static char dis_int_count = 0;
+//static char dis_int_count = 0;
 void DisableEnvINT(void)
 {
 //    //to disable int

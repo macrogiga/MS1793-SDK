@@ -341,30 +341,26 @@ void SysClk48to8(void)
     SysTick_Config(8000);
 }
 
-static char dis_int_count = 0;
+//static char dis_int_count = 0;
 void DisableEnvINT(void)
 { 
-    //to disable int
-    __ASM volatile("cpsid i");
-    
-    dis_int_count ++;
+//    //to disable int
+//    __ASM volatile("cpsid i");
+//    
+//    dis_int_count ++;
 }
 
 void EnableEnvINT(void)
 {
-    //to enable/recover int
-    dis_int_count --;    
-    if(dis_int_count<=0) //protection purpose
-    {
-        dis_int_count = 0; //reset
-        __ASM volatile("cpsie i");
-    }
+//    //to enable/recover int
+//    dis_int_count --;    
+//    if(dis_int_count<=0) //protection purpose
+//    {
+//        dis_int_count = 0; //reset
+//        __ASM volatile("cpsie i");
+//    }
 }
 
-//api provide in blelib
-//    EnableLED_Flag; Led_R; Led_G; Led_B; Led_Y; Led_W; Led_Lum_percent; 
 void UpdateLEDValueAll(void) //porting function
 {
-    
 }
-
