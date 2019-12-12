@@ -275,8 +275,12 @@ void gatt_user_send_notify_data_callback(void)
     if (Cont >= 20)
     {
         Cont = 0;
-        
+#if defined MS1791_EVBOARD
+        Val = Get_Adc_Average(ADC_Channel_4,5); //0~4095
+#else
         Val = Get_Adc_Average(ADC_Channel_3,5); //0~4095
+#endif
+        ADC1_SingleChannel(ADC_Channel_11);
         Val = Val>>3; // 0~511 for HRM data
         cur_notifyhandle = 0x12;
         if (Val<0x100)
@@ -295,9 +299,19 @@ void gatt_user_send_notify_data_callback(void)
     }
     else if (10 == Cont)
     {
-        Val = Get_Adc_Average(ADC_Channel_3,5); //0~4095
-        Val = Val>>3;
-        SimBatt = (Val*100)>>9; //0~100
+        Val = Get_Adc_Average(ADC_Channel_11,5); //0~4095
+#if defined MS1791_EVBOARD
+        ADC1_SingleChannel(ADC_Channel_4);
+#else
+        ADC1_SingleChannel(ADC_Channel_3);
+#endif
+        
+        Val = 49140/Val;
+        Val -= 24;
+        Val *= 100;
+        Val /= 9;
+        //Val = Val>>3;
+        SimBatt = Val;//(Val*100)>>9; //0~100
         cur_notifyhandle = 0x18;
         sconn_notifydata(&SimBatt,1);
 #ifdef USE_I2C

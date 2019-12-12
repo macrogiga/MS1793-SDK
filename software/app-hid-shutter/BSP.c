@@ -13,8 +13,8 @@ unsigned char SleepStatus = 2; //1-sleep, 2-stop, 0-running
 ********************************************************************************************************/
 void SPIM_TXEn(SPI_TypeDef* SPIx)
 {
-	//Transmit Enable bit TXEN
-	SPI_BiDirectionalLineConfig(SPIx, SPI_Direction_Tx);
+    //Transmit Enable bit TXEN
+    SPI_BiDirectionalLineConfig(SPIx, SPI_Direction_Tx);
 }
 
 /********************************************************************************************************
@@ -25,8 +25,8 @@ void SPIM_TXEn(SPI_TypeDef* SPIx)
 ********************************************************************************************************/
 void SPIM_TXDisable(SPI_TypeDef* SPIx)
 {
-	//disable TXEN
-	SPI_BiDirectionalLineConfig(SPIx, SPI_Disable_Tx);
+    //disable TXEN
+    SPI_BiDirectionalLineConfig(SPIx, SPI_Disable_Tx);
 }
 
 /********************************************************************************************************
@@ -37,8 +37,8 @@ void SPIM_TXDisable(SPI_TypeDef* SPIx)
 ********************************************************************************************************/
 void SPIM_RXEn(SPI_TypeDef* SPIx)
 {
-	//enable RXEN
-	SPI_BiDirectionalLineConfig(SPIx, SPI_Direction_Rx);
+    //enable RXEN
+    SPI_BiDirectionalLineConfig(SPIx, SPI_Direction_Rx);
 }
 
 /********************************************************************************************************
@@ -49,8 +49,8 @@ void SPIM_RXEn(SPI_TypeDef* SPIx)
 ********************************************************************************************************/
 void SPIM_RXDisable(SPI_TypeDef* SPIx)
 {
-	//disable RXEN
-	SPI_BiDirectionalLineConfig(SPIx, SPI_Disable_Rx);
+    //disable RXEN
+    SPI_BiDirectionalLineConfig(SPIx, SPI_Disable_Rx);
 }
 
 /********************************************************************************************************
@@ -182,11 +182,11 @@ void SetSysClock_HSI(u8 PLL)
 
 void SystemClk_HSEInit(void)
 {
-	SetSysClock_HSI(4);//HSI:12*4=48M
+    SetSysClock_HSI(4);//HSI:12*4=48M
 
-	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);//selecting PLL clock as sys clock
-	while (RCC_GetSYSCLKSource() != 0x08)
-	{}
+    RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);//selecting PLL clock as sys clock
+    while (RCC_GetSYSCLKSource() != 0x08)
+    {}
 }
 
 void LED_ONOFF(unsigned char onFlag)//module indicator,GPA8
@@ -220,7 +220,7 @@ void BSP_Init(void)
     //SPIM_Init(SPI_BLE,0x06); //8Mhz
     
 
-    //IRQ - pa12(MS1793)  PD2(MS1797)
+    //IRQ - pa12(MS1793)  PD2(MS1791)
     GPIO_InitStructure.GPIO_Pin  = IRQ_BLE_PIN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //…œ¿≠ ‰»Î
@@ -241,35 +241,19 @@ void BSP_Init(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 
-#ifdef MS1791_EVBOARD
-    SYSCFG_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource2);
-    EXTI_InitStructure.EXTI_Line = EXTI_Line2;
+    SYSCFG_EXTILineConfig(IRQ_EXTIPORT, IRQ_EXTISOURCE);
+    EXTI_InitStructure.EXTI_Line = IRQ_EXTI;
     EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
     EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
     EXTI_InitStructure.EXTI_LineCmd = ENABLE;
     EXTI_Init(&EXTI_InitStructure);
-
-    NVIC_InitStructure.NVIC_IRQChannel = EXTI2_3_IRQn;
+    
+    NVIC_InitStructure.NVIC_IRQChannel = IRQ_EXTNUMBER;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-    NVIC_SetPriority (EXTI2_3_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
-#else
-    SYSCFG_EXTILineConfig(GPIO_PortSourceGPIOA, GPIO_PinSource12);
-    EXTI_InitStructure.EXTI_Line = EXTI_Line12;
-    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-    EXTI_Init(&EXTI_InitStructure);
-
-    NVIC_InitStructure.NVIC_IRQChannel = EXTI4_15_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-    NVIC_SetPriority (EXTI4_15_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
-#endif
+    NVIC_SetPriority (IRQ_EXTNUMBER, (1<<__NVIC_PRIO_BITS) - 1);
 }
 
 
@@ -387,27 +371,24 @@ void SysClk48to8(void)
 static char dis_int_count = 0;
 void DisableEnvINT(void)
 { 
-    //to disable int
-    __ASM volatile("cpsid i");
-    
-    dis_int_count ++;
+//    //to disable int
+//    __ASM volatile("cpsid i");
+//    
+//    dis_int_count ++;
 }
 
 void EnableEnvINT(void)
 {
-    //to enable/recover int
-    dis_int_count --;    
-    if(dis_int_count<=0) //protection purpose
-    {
-        dis_int_count = 0; //reset
-        __ASM volatile("cpsie i");
-    }
+//    //to enable/recover int
+//    dis_int_count --;    
+//    if(dis_int_count<=0) //protection purpose
+//    {
+//        dis_int_count = 0; //reset
+//        __ASM volatile("cpsie i");
+//    }
 }
 
-//api provide in blelib
-//    EnableLED_Flag; Led_R; Led_G; Led_B; Led_Y; Led_W; Led_Lum_percent; 
-void UpdateLEDValueAll(void) //porting function
+void UpdateLEDValueAll(void)
 {
-    
 }
 

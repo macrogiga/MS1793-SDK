@@ -8,7 +8,9 @@
 /** @addtogroup Template_Project
   * @{
   */
-#include "HAL_conf.h"
+ #include "HAL_conf.h"
+ #include "mg_api.h"
+ #include "BSP.h"
 
 //unsigned short capture = 0;
 
@@ -82,7 +84,7 @@ void SysTick_Handler(void)
 }
 
 
-void EXTI4_15_IRQHandler(void)
+void IRQ_HANDLER(void)
 {
-    EXTI_ClearITPendingBit(EXTI_Line12); 
+    EXTI_ClearITPendingBit(IRQ_EXTI); 
 }

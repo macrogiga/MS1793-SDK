@@ -21,7 +21,7 @@
 void ReadDHT11(void);
 
 /********************************************************************************************************
-**函数信息 ：SPIM_TXEn(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_TXEn(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
@@ -33,7 +33,7 @@ void SPIM_TXEn(SPI_TypeDef* SPIx)
 }
 
 /********************************************************************************************************
-**函数信息 ：SPIM_TXDisable(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_TXDisable(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
@@ -45,7 +45,7 @@ void SPIM_TXDisable(SPI_TypeDef* SPIx)
 }
 
 /********************************************************************************************************
-**函数信息 ：SPIM_RXEn(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_RXEn(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
@@ -57,7 +57,7 @@ void SPIM_RXEn(SPI_TypeDef* SPIx)
 }
 
 /********************************************************************************************************
-**函数信息 ：SPIM_RXDisable(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_RXDisable(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
@@ -69,7 +69,7 @@ void SPIM_RXDisable(SPI_TypeDef* SPIx)
 }
 
 /********************************************************************************************************
-**函数信息 ：SPIM_Init(SPI_TypeDef* SPIx, unsigned short spi_baud_div)            
+**函数信息 ：SPIM_Init(SPI_TypeDef* SPIx, unsigned short spi_baud_div)
 **功能描述 :可修改参数初始化SPI
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2  ;spi_baud_div
 **输出参数 ：无
@@ -145,7 +145,6 @@ void SPIM_Init(SPI_TypeDef* SPIx,unsigned short spi_baud_div)
         GPIO_Init(GPIOB, &GPIO_InitStructure);
     }
 
-
     SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
     SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
     SPI_InitStructure.SPI_DataWidth = SPI_DataWidth_8b;
@@ -163,7 +162,7 @@ void SPIM_Init(SPI_TypeDef* SPIx,unsigned short spi_baud_div)
 }
 
 /********************************************************************************************************
-**函数信息 ：SystemClk_HSEInit (void)                        
+**函数信息 ：SystemClk_HSEInit (void)
 **功能描述 ：系统时钟初始化函数，初始化之前先复位所有时钟
 **输入参数 ：无
 **输出参数 ：无
@@ -180,7 +179,7 @@ void SetSysClock_HSI(u8 PLL)
   
   RCC->CR &=~(RCC_CR_PLLON);		//clear PLL//	RCC->CR &=~(7<<20);		//clear PLL
   
-  RCC->CR &=~(0x1f<<26);	
+  RCC->CR &=~(0x1f<<26);
   RCC->CR|=(PLL - 1) << 26;   //setting PLL value 2~16
   
   FLASH->ACR=FLASH_ACR_LATENCY_1|FLASH_ACR_PRFTBE;	  //FLASH 2 delay clk cycles
@@ -297,7 +296,7 @@ void BSP_Init(void)
     SPIM_Init(SPI_BLE,0x06); //8Mhz
     
 
-    //IRQ - pa12(MS1793)  PD2(MS1797)
+    //IRQ - pa12(MS1793)  PD2(MS1791)
     GPIO_InitStructure.GPIO_Pin  = IRQ_BLE_PIN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //上拉输入
@@ -334,36 +333,21 @@ void BSP_Init(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 
-#ifdef MS1791_EVBOARD
-    SYSCFG_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource2);
-    EXTI_InitStructure.EXTI_Line = EXTI_Line2;
+    SYSCFG_EXTILineConfig(IRQ_EXTIPORT, IRQ_EXTISOURCE);
+    EXTI_InitStructure.EXTI_Line = IRQ_EXTI;
     EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
     EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
     EXTI_InitStructure.EXTI_LineCmd = ENABLE;
     EXTI_Init(&EXTI_InitStructure);
-
-    NVIC_InitStructure.NVIC_IRQChannel = EXTI2_3_IRQn;
+    
+    NVIC_InitStructure.NVIC_IRQChannel = IRQ_EXTNUMBER;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-    NVIC_SetPriority (EXTI2_3_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
-#else
-    SYSCFG_EXTILineConfig(GPIO_PortSourceGPIOA, GPIO_PinSource12);
-    EXTI_InitStructure.EXTI_Line = EXTI_Line12;
-    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-    EXTI_Init(&EXTI_InitStructure);
-
-    NVIC_InitStructure.NVIC_IRQChannel = EXTI4_15_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-    NVIC_SetPriority (EXTI4_15_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
-#endif
-	IIC_Init(I2C1);
+    NVIC_SetPriority (IRQ_EXTNUMBER, (1<<__NVIC_PRIO_BITS) - 1);
+    
+    IIC_Init(I2C1);
 }
 
 
@@ -475,25 +459,23 @@ void SysClk48to8(void)
 static char dis_int_count = 0;
 void DisableEnvINT(void)
 { 
-    //to disable int
-    __ASM volatile("cpsid i");
-    
-    dis_int_count ++;
+//    //to disable int
+//    __ASM volatile("cpsid i");
+//    
+//    dis_int_count ++;
 }
 
 void EnableEnvINT(void)
 {
-    //to enable/recover int
-    dis_int_count --;
-    if(dis_int_count<=0) //protection purpose
-    {
-        dis_int_count = 0; //reset
-        __ASM volatile("cpsie i");
-    }
+//    //to enable/recover int
+//    dis_int_count --;
+//    if(dis_int_count<=0) //protection purpose
+//    {
+//        dis_int_count = 0; //reset
+//        __ASM volatile("cpsie i");
+//    }
 }
 
-//api provide in blelib
-//    EnableLED_Flag; Led_R; Led_G; Led_B; Led_Y; Led_W; Led_Lum_percent; 
 void UpdateLEDValueAll(void) //porting function
 {
 }

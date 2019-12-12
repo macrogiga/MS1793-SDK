@@ -5,10 +5,6 @@
 #include "mg_api.h"
 
 unsigned char *ble_mac_addr;
-unsigned char* get_local_addr(void) //used for ble pairing case
-{
-    return ble_mac_addr;
-}
 
 
 int main(void)

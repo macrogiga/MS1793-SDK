@@ -5,7 +5,7 @@
 
 
 /********************************************************************************************************
-**函数信息 ：BKP_DATA(void)         
+**函数信息 ：BKP_DATA(void)
 **功能描述 : BKP数据读写测试，判断写和读的数据是否一致
 **输入参数 ：FirstBackupData
 **输出参数 ：i
@@ -37,7 +37,7 @@ u8 BKP_DATA(void)
 
 
 /********************************************************************************************************
-**函数信息 ：SPIM_TXEn(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_TXEn(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
@@ -49,7 +49,7 @@ void SPIM_TXEn(SPI_TypeDef* SPIx)
 }
 
 /********************************************************************************************************
-**函数信息 ：SPIM_TXDisable(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_TXDisable(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
@@ -61,7 +61,7 @@ void SPIM_TXDisable(SPI_TypeDef* SPIx)
 }
 
 /********************************************************************************************************
-**函数信息 ：SPIM_RXEn(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_RXEn(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
@@ -73,7 +73,7 @@ void SPIM_RXEn(SPI_TypeDef* SPIx)
 }
 
 /********************************************************************************************************
-**函数信息 ：SPIM_RXDisable(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_RXDisable(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
@@ -179,7 +179,7 @@ void SPIM_Init(SPI_TypeDef* SPIx,unsigned short spi_baud_div)
 }
 
 /********************************************************************************************************
-**函数信息 ：SystemClk_HSEInit (void)                        
+**函数信息 ：SystemClk_HSEInit (void)
 **功能描述 ：系统时钟初始化函数，初始化之前先复位所有时钟
 **输入参数 ：无
 **输出参数 ：无
@@ -354,7 +354,7 @@ void BSP_Init(void)
     SPIM_Init(SPI_BLE,0x06); //8Mhz
     
 
-    //IRQ - pa12(MS1793)  PD2(MS1797)
+    //IRQ - pa12(MS1793)  PD2(MS1791)
     GPIO_InitStructure.GPIO_Pin  = IRQ_BLE_PIN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //上拉输入
@@ -371,7 +371,7 @@ void BSP_Init(void)
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
     
-#if defined MS1797_EVBOARD
+#if defined MS1791_EVBOARD
     GPIO_InitStructure.GPIO_Pin  =  GPIO_Pin_4;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     /*将PA4配置为模拟输入*/
@@ -393,35 +393,19 @@ void BSP_Init(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 
-#ifdef MS1797_EVBOARD
-    SYSCFG_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource2);
-    EXTI_InitStructure.EXTI_Line = EXTI_Line2;
+    SYSCFG_EXTILineConfig(IRQ_EXTIPORT, IRQ_EXTISOURCE);
+    EXTI_InitStructure.EXTI_Line = IRQ_EXTI;
     EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
     EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
     EXTI_InitStructure.EXTI_LineCmd = ENABLE;
     EXTI_Init(&EXTI_InitStructure);
-
-    NVIC_InitStructure.NVIC_IRQChannel = EXTI2_3_IRQn;
+    
+    NVIC_InitStructure.NVIC_IRQChannel = IRQ_EXTNUMBER;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-    NVIC_SetPriority (EXTI2_3_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
-#else
-    SYSCFG_EXTILineConfig(GPIO_PortSourceGPIOA, GPIO_PinSource12);
-    EXTI_InitStructure.EXTI_Line = EXTI_Line12;
-    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-    EXTI_Init(&EXTI_InitStructure);
-
-    NVIC_InitStructure.NVIC_IRQChannel = EXTI4_15_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-    NVIC_SetPriority (EXTI4_15_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
-#endif
+    NVIC_SetPriority (IRQ_EXTNUMBER, (1<<__NVIC_PRIO_BITS) - 1);
 }
 
 
@@ -507,27 +491,23 @@ void SysClk48to8(void)
 static char dis_int_count = 0;
 void DisableEnvINT(void)
 { 
-    //to disable int
-    __ASM volatile("cpsid i");
-    
-    dis_int_count ++;
+//    //to disable int
+//    __ASM volatile("cpsid i");
+//    
+//    dis_int_count ++;
 }
 
 void EnableEnvINT(void)
 {
-    //to enable/recover int
-    dis_int_count --;    
-    if(dis_int_count<=0) //protection purpose
-    {
-        dis_int_count = 0; //reset
-        __ASM volatile("cpsie i");
-    }
+//    //to enable/recover int
+//    dis_int_count --;    
+//    if(dis_int_count<=0) //protection purpose
+//    {
+//        dis_int_count = 0; //reset
+//        __ASM volatile("cpsie i");
+//    }
 }
 
-//api provide in blelib
-//    EnableLED_Flag; Led_R; Led_G; Led_B; Led_Y; Led_W; Led_Lum_percent; 
 void UpdateLEDValueAll(void) //porting function
 {
-    
 }
-

@@ -13,51 +13,51 @@ extern unsigned int TxTimeout;
 unsigned char SleepStop = 0x01; //01-sleep, 02-stop
 unsigned char SleepStatus = 0;
 /********************************************************************************************************
-**函数信息 ：SPIM_TXEn(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_TXEn(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
 ********************************************************************************************************/
 void SPIM_TXEn(SPI_TypeDef* SPIx)
 {
-	//Transmit Enable bit TXEN
-	SPI_BiDirectionalLineConfig(SPIx, SPI_Direction_Tx);
+    //Transmit Enable bit TXEN
+    SPI_BiDirectionalLineConfig(SPIx, SPI_Direction_Tx);
 }
 
 /********************************************************************************************************
-**函数信息 ：SPIM_TXDisable(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_TXDisable(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
 ********************************************************************************************************/
 void SPIM_TXDisable(SPI_TypeDef* SPIx)
 {
-	//disable TXEN
-	SPI_BiDirectionalLineConfig(SPIx, SPI_Disable_Tx);
+    //disable TXEN
+    SPI_BiDirectionalLineConfig(SPIx, SPI_Disable_Tx);
 }
 
 /********************************************************************************************************
-**函数信息 ：SPIM_RXEn(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_RXEn(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
 ********************************************************************************************************/
 void SPIM_RXEn(SPI_TypeDef* SPIx)
 {
-	//enable RXEN
-	SPI_BiDirectionalLineConfig(SPIx, SPI_Direction_Rx);
+    //enable RXEN
+    SPI_BiDirectionalLineConfig(SPIx, SPI_Direction_Rx);
 }
 
 /********************************************************************************************************
-**函数信息 ：SPIM_RXDisable(SPI_TypeDef* SPIx)                     
+**函数信息 ：SPIM_RXDisable(SPI_TypeDef* SPIx)
 **功能描述 :关闭 SPI 在双向模式下的数据传输方向 
 **输入参数 ：SPI_TypeDef* SPIx,可选择SPI1,SPI2
 **输出参数 ：无
 ********************************************************************************************************/
 void SPIM_RXDisable(SPI_TypeDef* SPIx)
 {
-	//disable RXEN
-	SPI_BiDirectionalLineConfig(SPIx, SPI_Disable_Rx);
+    //disable RXEN
+    SPI_BiDirectionalLineConfig(SPIx, SPI_Disable_Rx);
 }
 
 /********************************************************************************************************
@@ -188,11 +188,11 @@ void SetSysClock_HSI(u8 PLL)
 
 void SystemClk_HSEInit(void)
 {
-	SetSysClock_HSI(4);//HSI:12*4=48M
+    SetSysClock_HSI(4);//HSI:12*4=48M
 
-	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);//selecting PLL clock as sys clock
-	while (RCC_GetSYSCLKSource() != 0x08)
-	{}
+    RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);//selecting PLL clock as sys clock
+    while (RCC_GetSYSCLKSource() != 0x08)
+    {}
 }
 
 /********************************************************************************************************
@@ -327,35 +327,19 @@ void BSP_Init(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 
-#ifdef MS1791_EVBOARD
-    SYSCFG_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource2);
-    EXTI_InitStructure.EXTI_Line = EXTI_Line2;
+    SYSCFG_EXTILineConfig(IRQ_EXTIPORT, IRQ_EXTISOURCE);
+    EXTI_InitStructure.EXTI_Line = IRQ_EXTI;
     EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
     EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
     EXTI_InitStructure.EXTI_LineCmd = ENABLE;
     EXTI_Init(&EXTI_InitStructure);
-
-    NVIC_InitStructure.NVIC_IRQChannel = EXTI2_3_IRQn;
+    
+    NVIC_InitStructure.NVIC_IRQChannel = IRQ_EXTNUMBER;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
-    NVIC_SetPriority (EXTI2_3_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
-#else
-    SYSCFG_EXTILineConfig(GPIO_PortSourceGPIOA, GPIO_PinSource12);
-    EXTI_InitStructure.EXTI_Line = EXTI_Line12;
-    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-    EXTI_Init(&EXTI_InitStructure);
-
-    NVIC_InitStructure.NVIC_IRQChannel = EXTI4_15_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-    NVIC_SetPriority (EXTI4_15_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
-#endif
+    NVIC_SetPriority (IRQ_EXTNUMBER, (1<<__NVIC_PRIO_BITS) - 1);
 }
 
 

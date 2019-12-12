@@ -64,7 +64,6 @@ int main(void)
     Write_Iwdg_ON(IWDG_Prescaler_32, 0x4E2); //1250*0.8ms=1s
 
     ble_run_interrupt_start(160*2);
-    //ble_run(160*2); //320*0.625=200 ms
 
     OLED_Clear();
     Timer2S = 0;

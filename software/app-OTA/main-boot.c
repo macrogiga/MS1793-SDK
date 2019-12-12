@@ -113,7 +113,7 @@ int CheckCodeBank(int BANK_ID_Flag)
     if(((Crc & 0xFF) != BankAddr[2]) || (((Crc>>8) & 0xFF) != BankAddr[3]))
     {
         return 0; //failed
-    }        
+    }
     
     return 1; //OK
 }
@@ -157,7 +157,7 @@ void CopyB2A(void)
     unsigned char* addr = (unsigned char*)(BANK_BASE + BANK_B_OFFSET);
     
     Size = addr[1]; Size <<= 8;  Size |= addr[0];
-    Size >>= 2;    
+    Size >>= 2;
     Size += 4;//header 16 bytes
     
     if(Size > BANK_B_SIZE_KB_MAX * 256)//error
@@ -213,3 +213,7 @@ int main(void)
     }
 }
 
+void NMI_Handler(void)
+{
+    NVIC_SystemReset();
+}

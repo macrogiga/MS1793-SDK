@@ -1,16 +1,12 @@
 
 /* Includes ------------------------------------------------------------------*/
-// #include "stm32f0xx_it.h"
-// #include "stm32f0xx_exti.h"
-// #include "stm32f0xx_tim.h"
-// #include "stm32f0xx_gpio.h"
 
 /** @addtogroup Template_Project
   * @{
   */
  #include "HAL_conf.h"
  #include "mg_api.h"
-
+ #include "BSP.h"
 
 extern unsigned char SleepStop;
 
@@ -87,15 +83,12 @@ void SysTick_Handler(void)
 
 void EXTI0_1_IRQHandler(void)
 {
-	EXTI_ClearITPendingBit(EXTI_Line0); 
+    EXTI_ClearITPendingBit(EXTI_Line0); 
 }
 
-void EXTI4_15_IRQHandler(void)
+void IRQ_HANDLER(void)
 {
-	/*EXTI_ClearITPendingBit(EXTI_Line10);*/
-	//EXTI_ClearITPendingBit(EXTI_Line11);
-    
-    EXTI_ClearITPendingBit(EXTI_Line12);
+    EXTI_ClearITPendingBit(IRQ_EXTI);
     
     if(2 == SleepStop){ //stop
         RCC->CR |= RCC_CR_HSION;
