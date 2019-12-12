@@ -34,23 +34,23 @@ void MOTOR_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     
-    //motor module PD2,PD3
+    //motor module
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOD, ENABLE);
-    GPIO_PinAFConfig(GPIOD,GPIO_PinSource2,GPIO_AF_5);
-    GPIO_PinAFConfig(GPIOD,GPIO_PinSource3,GPIO_AF_5);
-    GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_2 | GPIO_Pin_3;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+    GPIO_PinAFConfig(MOTOR_PORT,MOTOR_BI_PIN_SOURCE,GPIO_AF_3);
+    GPIO_PinAFConfig(MOTOR_PORT,MOTOR_FI_PIN_SOURCE,GPIO_AF_3);
+    GPIO_InitStructure.GPIO_Pin  = MOTOR_BI_PIN | MOTOR_FI_PIN;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-    GPIO_Init(GPIOD, &GPIO_InitStructure);
+    GPIO_Init(MOTOR_PORT, &GPIO_InitStructure);
     
-    GPIO_ResetBits(GPIOD, GPIO_Pin_2);
-    GPIO_ResetBits(GPIOD, GPIO_Pin_3);
+    GPIO_ResetBits(MOTOR_PORT, MOTOR_BI_PIN);
+    GPIO_ResetBits(MOTOR_PORT, MOTOR_FI_PIN);
 }
 
 static void MOTOR_Stop(void)
 {
-    GPIO_ResetBits(GPIOD, GPIO_Pin_2);
-    GPIO_ResetBits(GPIOD, GPIO_Pin_3);
+    GPIO_ResetBits(MOTOR_PORT, MOTOR_BI_PIN);
+    GPIO_ResetBits(MOTOR_PORT, MOTOR_FI_PIN);
 }
 
 static void MOTOR_Run(unsigned char direction) 
@@ -58,13 +58,13 @@ static void MOTOR_Run(unsigned char direction)
     switch(direction)
     {
         case DIR_CLOCKWISE:
-            GPIO_SetBits(GPIOD, GPIO_Pin_2);
-            GPIO_ResetBits(GPIOD, GPIO_Pin_3);
+            GPIO_SetBits(MOTOR_PORT, MOTOR_BI_PIN);
+            GPIO_ResetBits(MOTOR_PORT, MOTOR_FI_PIN);
             break;
         
         case DIR_COUNTER_CLOCKWISE:
-            GPIO_ResetBits(GPIOD, GPIO_Pin_2);
-            GPIO_SetBits(GPIOD, GPIO_Pin_3);
+            GPIO_ResetBits(MOTOR_PORT, MOTOR_BI_PIN);
+            GPIO_SetBits(MOTOR_PORT, MOTOR_FI_PIN);
             break;
         
         default:
